@@ -5,8 +5,8 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   test: {
-    // Test environment
-    environment: 'jsdom',
+    // Test environment - using happy-dom for better ESM compatibility
+    environment: 'happy-dom',
 
     // Global test utilities
     globals: true,
