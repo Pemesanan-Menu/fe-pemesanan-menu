@@ -22,6 +22,7 @@ function LoadingFallback() {
 // CREATE ROUTER
 // ============================================================================
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const router = createBrowserRouter(
   routes.map((route) => ({
     ...route,

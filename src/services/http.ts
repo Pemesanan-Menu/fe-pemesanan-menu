@@ -13,7 +13,7 @@ export const http = {
    * @param params - Query parameters
    * @returns Promise with typed response data
    */
-  async get<T>(url: string, params?: Record<string, any>): Promise<T> {
+  async get<T>(url: string, params?: Record<string, unknown>): Promise<T> {
     const response: AxiosResponse<ApiResponse<T>> = await api.get(url, { params })
     return response.data.data
   },
@@ -24,7 +24,7 @@ export const http = {
    * @param data - Request body
    * @returns Promise with typed response data
    */
-  async post<T>(url: string, data?: any): Promise<T> {
+  async post<T>(url: string, data?: unknown): Promise<T> {
     const response: AxiosResponse<ApiResponse<T>> = await api.post(url, data)
     return response.data.data
   },
@@ -35,7 +35,7 @@ export const http = {
    * @param data - Request body
    * @returns Promise with typed response data
    */
-  async put<T>(url: string, data?: any): Promise<T> {
+  async put<T>(url: string, data?: unknown): Promise<T> {
     const response: AxiosResponse<ApiResponse<T>> = await api.put(url, data)
     return response.data.data
   },
@@ -46,7 +46,7 @@ export const http = {
    * @param data - Request body
    * @returns Promise with typed response data
    */
-  async patch<T>(url: string, data?: any): Promise<T> {
+  async patch<T>(url: string, data?: unknown): Promise<T> {
     const response: AxiosResponse<ApiResponse<T>> = await api.patch(url, data)
     return response.data.data
   },
@@ -70,21 +70,21 @@ export const rawHttp = {
   /**
    * Raw GET request (returns full axios response)
    */
-  async get<T>(url: string, params?: Record<string, any>): Promise<AxiosResponse<T>> {
+  async get<T>(url: string, params?: Record<string, unknown>): Promise<AxiosResponse<T>> {
     return api.get<T>(url, { params })
   },
 
   /**
    * Raw POST request (returns full axios response)
    */
-  async post<T>(url: string, data?: any): Promise<AxiosResponse<T>> {
+  async post<T>(url: string, data?: unknown): Promise<AxiosResponse<T>> {
     return api.post<T>(url, data)
   },
 
   /**
    * Raw PUT request (returns full axios response)
    */
-  async put<T>(url: string, data?: any): Promise<AxiosResponse<T>> {
+  async put<T>(url: string, data?: unknown): Promise<AxiosResponse<T>> {
     return api.put<T>(url, data)
   },
 
