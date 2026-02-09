@@ -1,0 +1,27 @@
+import api from '@/services/api'
+
+export interface LoginRequest {
+  username: string
+  kataSandi: string
+}
+
+export interface LoginResponse {
+  success: boolean
+  message: string
+  data: {
+    user: {
+      id: string
+      nama: string
+      username: string
+      role: string
+    }
+    token: string
+  }
+}
+
+export const authService = {
+  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
+    const { data } = await api.post<LoginResponse>('/auth/login', credentials)
+    return data
+  },
+}
