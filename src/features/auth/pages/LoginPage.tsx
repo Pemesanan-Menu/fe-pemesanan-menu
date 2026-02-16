@@ -13,6 +13,11 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [kataSandi, setKataSandi] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Debug: Log API base URL
+  useEffect(() => {
+    console.log('🔍 API Base URL:', import.meta.env.VITE_API_BASE_URL)
+  }, [])
   const [showPassword, setShowPassword] = useState(false)
   const [formVisible, setFormVisible] = useState(false)
 
