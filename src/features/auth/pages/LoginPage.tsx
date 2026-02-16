@@ -6,6 +6,7 @@ import { authService } from '../services/authService'
 import { authUtils } from '@/utils/auth'
 import { APP_CONFIG } from '@/config/constants'
 import { useTheme } from '@/hooks/useTheme'
+import { getErrorMessage } from '@/types/error'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -58,10 +59,9 @@ export default function LoginPage() {
       })
       
       navigate('/dashboard')
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } }
+    } catch (err) {
       toast.error('Login gagal', {
-        description: error.response?.data?.message || 'Email atau kata sandi salah!'
+        description: getErrorMessage(err)
       })
     } finally {
       setIsLoading(false)

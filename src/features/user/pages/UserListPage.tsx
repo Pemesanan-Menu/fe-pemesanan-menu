@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useUsers } from '../hooks/useUsers'
 import { userService } from '../services/userService'
 import { User } from '@/types/user'
+import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Modal } from '@/components/ui/modal'
@@ -47,8 +48,8 @@ export default function UserListPage() {
       }
       setShowModal(false)
       refetch()
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Terjadi kesalahan')
+    } catch (err) {
+      toast.error(getErrorMessage(err))
     } finally {
       setIsSubmitting(false)
     }
@@ -65,8 +66,8 @@ export default function UserListPage() {
       await userService.delete(userToDelete.id)
       toast.success('User berhasil dihapus')
       refetch()
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gagal menghapus user')
+    } catch (err) {
+      toast.error(getErrorMessage(err))
     } finally {
       setShowDeleteDialog(false)
       setUserToDelete(null)

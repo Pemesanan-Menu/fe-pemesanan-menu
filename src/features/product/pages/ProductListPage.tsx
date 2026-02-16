@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useProducts } from '../hooks/useProducts'
 import { productService } from '../services/productService'
 import { Product } from '@/types/product'
+import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Modal } from '@/components/ui/modal'
@@ -56,8 +57,8 @@ export default function ProductListPage() {
       }
       setShowModal(false)
       refetch()
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Terjadi kesalahan')
+    } catch (err) {
+      toast.error(getErrorMessage(err))
     } finally {
       setIsSubmitting(false)
     }
@@ -74,8 +75,8 @@ export default function ProductListPage() {
       await productService.delete(productToDelete.id)
       toast.success('Produk berhasil dihapus')
       refetch()
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gagal menghapus produk')
+    } catch (err) {
+      toast.error(getErrorMessage(err))
     } finally {
       setShowDeleteDialog(false)
       setProductToDelete(null)

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTables } from '../hooks/useTables'
 import { tableService } from '../services/tableService'
 import { Table } from '@/types/table'
+import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Modal } from '@/components/ui/modal'
@@ -48,8 +49,8 @@ export default function TableListPage() {
       }
       setShowModal(false)
       refetch()
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Terjadi kesalahan')
+    } catch (err) {
+      toast.error(getErrorMessage(err))
     } finally {
       setIsSubmitting(false)
     }
@@ -66,8 +67,8 @@ export default function TableListPage() {
       await tableService.delete(tableToDelete.id)
       toast.success('Meja berhasil dihapus')
       refetch()
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gagal menghapus meja')
+    } catch (err) {
+      toast.error(getErrorMessage(err))
     } finally {
       setShowDeleteDialog(false)
       setTableToDelete(null)
