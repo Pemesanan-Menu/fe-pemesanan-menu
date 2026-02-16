@@ -137,6 +137,8 @@ export default function UserListPage() {
           emptyMessage="Belum ada pengguna"
           onEdit={handleEdit}
           onDelete={handleDelete}
+          searchPlaceholder="Cari nama atau email..."
+          searchKeys={['name', 'email', 'role']}
         />
       </div>
 

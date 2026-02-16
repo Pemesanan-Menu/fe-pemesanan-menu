@@ -122,7 +122,16 @@ export default function ProductListPage() {
           action={{ label: '+ Tambah Produk', onClick: handleCreate }}
         />
 
-        <DataTable columns={columns} data={products} isLoading={isLoading} emptyMessage="Belum ada produk" onEdit={handleEdit} onDelete={handleDelete} />
+        <DataTable
+          columns={columns}
+          data={products}
+          isLoading={isLoading}
+          emptyMessage="Belum ada produk"
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          searchPlaceholder="Cari nama produk..."
+          searchKeys={['name', 'category']}
+        />
       </div>
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingProduct ? 'Edit Produk' : 'Tambah Produk'}>

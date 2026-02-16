@@ -117,6 +117,8 @@ export default function ProductionQueuePage() {
           isLoading={isLoading}
           emptyMessage="Tidak ada antrian produksi"
           onEdit={handleUpdateStatus}
+          searchPlaceholder="Cari produk atau pelanggan..."
+          searchKeys={['product_name', 'customer_name', 'table_number', 'status']}
         />
       </div>
 

@@ -140,6 +140,8 @@ export default function TableListPage() {
           emptyMessage="Belum ada meja"
           onEdit={handleEdit}
           onDelete={handleDelete}
+          searchPlaceholder="Cari nomor meja..."
+          searchKeys={['number']}
         />
       </div>
 
