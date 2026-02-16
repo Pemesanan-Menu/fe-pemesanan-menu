@@ -47,7 +47,7 @@ export const authUtils = {
     authUtils.removeUser()
   },
 
-  hasRole: (allowedRoles: string[]): boolean => {
+  hasRole: (allowedRoles: readonly string[]): boolean => {
     const user = authUtils.getUser()
     if (!user) return false
     if (allowedRoles.length === 0) return true
