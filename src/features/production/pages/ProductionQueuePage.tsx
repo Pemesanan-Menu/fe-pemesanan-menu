@@ -125,7 +125,7 @@ export default function ProductionQueuePage() {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select value={newStatus} onValueChange={(value: any) => setNewStatus(value)}>
+            <Select value={newStatus} onValueChange={(value: 'pending' | 'in_progress' | 'completed') => setNewStatus(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
