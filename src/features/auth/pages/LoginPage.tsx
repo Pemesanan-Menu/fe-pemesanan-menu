@@ -69,10 +69,132 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={`min-h-screen w-full transition-colors duration-300 ${
+    <div className={`min-h-screen w-full transition-colors duration-300 relative overflow-hidden ${
       theme === 'dark' ? 'bg-slate-900' : 'bg-gray-50'
     }`}>
-      <div className="flex min-h-screen items-center justify-center p-4">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Animated gradient blobs - Larger and more visible */}
+        <div
+          className={`absolute -top-40 -left-40 w-150 h-150 rounded-full blur-3xl ${
+            theme === 'dark' ? 'bg-purple-600/50' : 'bg-purple-400/60'
+          }`}
+          style={{ animation: 'blob 8s ease-in-out infinite' }}
+        />
+        <div
+          className={`absolute top-1/4 -right-32 w-125 h-125 rounded-full blur-3xl ${
+            theme === 'dark' ? 'bg-fuchsia-600/45' : 'bg-fuchsia-400/55'
+          }`}
+          style={{ animation: 'blob 8s ease-in-out infinite 2s' }}
+        />
+        <div
+          className={`absolute -bottom-32 left-1/4 w-112.5 h-112.5 rounded-full blur-3xl ${
+            theme === 'dark' ? 'bg-violet-600/40' : 'bg-violet-400/50'
+          }`}
+          style={{ animation: 'blob 8s ease-in-out infinite 4s' }}
+        />
+        <div
+          className={`absolute bottom-1/3 -left-24 w-100 h-100 rounded-full blur-3xl ${
+            theme === 'dark' ? 'bg-indigo-600/40' : 'bg-indigo-400/50'
+          }`}
+          style={{ animation: 'blob 10s ease-in-out infinite 1s' }}
+        />
+        <div
+          className={`absolute top-[45%] right-[30%] w-87.5 h-87.5 rounded-full blur-3xl ${
+            theme === 'dark' ? 'bg-pink-600/35' : 'bg-pink-400/45'
+          }`}
+          style={{ animation: 'blob 9s ease-in-out infinite 3s' }}
+        />
+
+        {/* Floating geometric shapes - More visible */}
+        <div
+          className={`absolute top-[15%] left-[10%] w-24 h-24 border-[3px] rounded-lg ${
+            theme === 'dark' ? 'border-purple-400/40 shadow-lg shadow-purple-500/20' : 'border-purple-500/50 shadow-lg shadow-purple-400/30'
+          }`}
+          style={{ animation: 'float 6s ease-in-out infinite', transform: 'rotate(45deg)' }}
+        />
+        <div
+          className={`absolute top-[20%] right-[15%] w-20 h-20 border-[3px] rounded-full ${
+            theme === 'dark' ? 'border-fuchsia-400/40 shadow-lg shadow-fuchsia-500/20' : 'border-fuchsia-500/50 shadow-lg shadow-fuchsia-400/30'
+          }`}
+          style={{ animation: 'float 7s ease-in-out infinite 1s' }}
+        />
+        <div
+          className={`absolute bottom-[20%] right-[10%] w-28 h-28 border-[3px] rounded-lg ${
+            theme === 'dark' ? 'border-violet-400/35 shadow-lg shadow-violet-500/20' : 'border-violet-500/45 shadow-lg shadow-violet-400/30'
+          }`}
+          style={{ animation: 'float 8s ease-in-out infinite 2s', transform: 'rotate(12deg)' }}
+        />
+        <div
+          className={`absolute bottom-[15%] left-[20%] w-16 h-16 border-[3px] rounded-full ${
+            theme === 'dark' ? 'border-indigo-400/40 shadow-lg shadow-indigo-500/20' : 'border-indigo-500/50 shadow-lg shadow-indigo-400/30'
+          }`}
+          style={{ animation: 'float 5s ease-in-out infinite 3s' }}
+        />
+        <div
+          className={`absolute top-[60%] left-[5%] w-12 h-12 rounded-sm ${
+            theme === 'dark' ? 'bg-purple-500/25 shadow-lg shadow-purple-500/30' : 'bg-purple-400/35 shadow-lg shadow-purple-400/40'
+          }`}
+          style={{ animation: 'float 9s ease-in-out infinite 0.5s', transform: 'rotate(30deg)' }}
+        />
+        <div
+          className={`absolute top-[10%] left-[50%] w-14 h-14 rounded-sm ${
+            theme === 'dark' ? 'bg-fuchsia-500/20 shadow-lg shadow-fuchsia-500/30' : 'bg-fuchsia-400/30 shadow-lg shadow-fuchsia-400/40'
+          }`}
+          style={{ animation: 'float 7s ease-in-out infinite 2.5s', transform: 'rotate(-20deg)' }}
+        />
+        <div
+          className={`absolute bottom-[35%] right-[25%] w-10 h-10 rounded-full ${
+            theme === 'dark' ? 'bg-violet-400/25 shadow-lg shadow-violet-500/30' : 'bg-violet-400/35 shadow-lg shadow-violet-400/40'
+          }`}
+          style={{ animation: 'float 6s ease-in-out infinite 4s' }}
+        />
+        <div
+          className={`absolute top-[40%] left-[15%] w-8 h-8 rounded-full ${
+            theme === 'dark' ? 'bg-pink-400/20 shadow-md shadow-pink-500/25' : 'bg-pink-400/30 shadow-md shadow-pink-400/35'
+          }`}
+          style={{ animation: 'float 6.5s ease-in-out infinite 1.5s' }}
+        />
+        <div
+          className={`absolute bottom-[45%] right-[8%] w-10 h-10 border-2 rounded-lg ${
+            theme === 'dark' ? 'border-purple-400/30' : 'border-purple-500/40'
+          }`}
+          style={{ animation: 'float 7.5s ease-in-out infinite 2.8s', transform: 'rotate(-15deg)' }}
+        />
+
+        {/* Dot grid pattern - More visible */}
+        <div
+          className={`absolute inset-0 ${theme === 'dark' ? 'opacity-[0.08]' : 'opacity-[0.1]'}`}
+          style={{
+            backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
+
+        {/* Radial gradient overlay for depth */}
+        <div
+          className={`absolute inset-0 ${
+            theme === 'dark'
+              ? 'bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(15,23,42,0.6)_70%)]'
+              : 'bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(249,250,251,0.5)_70%)]'
+          }`}
+        />
+      </div>
+
+      {/* Keyframe animations */}
+      <style>{`
+        @keyframes blob {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -20px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(var(--tw-rotate, 0deg)); }
+          50% { transform: translateY(-20px) rotate(var(--tw-rotate, 0deg)); }
+        }
+      `}</style>
+
+      <div className="flex min-h-screen items-center justify-center p-4 relative z-10">
         <div className={`w-full max-w-6xl overflow-hidden rounded-2xl transition-all duration-500 ${
           theme === 'dark' ? 'bg-slate-800 shadow-xl shadow-slate-700/20' : 'bg-white shadow-xl'
         } ${formVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
