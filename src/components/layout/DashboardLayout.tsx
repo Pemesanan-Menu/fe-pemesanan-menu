@@ -69,7 +69,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Logo */}
         <div className={`h-16 flex items-center justify-between px-6 border-b ${UI.BORDER.DEFAULT.split(' ')[1]}`}>
           <div className="flex items-center gap-3">
-            <img src="/src/asset/favicon.ico" alt="Logo" className="w-8 h-8" />
+            <img src="/logo.webp" alt={APP_CONFIG.name} className="w-8 h-8 object-contain" />
             <span className={`${UI.FONT.WEIGHT.BOLD} ${UI.TEXT_COLOR.PRIMARY}`}>{APP_CONFIG.name}</span>
           </div>
         </div>

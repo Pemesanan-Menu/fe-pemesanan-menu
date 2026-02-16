@@ -79,7 +79,7 @@ export default function UserListPage() {
       header: 'Pengguna',
       accessor: (user: User) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
+          <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
             {user.name?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div>

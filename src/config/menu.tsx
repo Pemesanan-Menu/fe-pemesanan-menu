@@ -28,13 +28,13 @@ export const MENU_ITEMS = [
     name: 'Pesanan',
     path: '/orders',
     icon: 'clipboard',
-    roles: ['kasir'],
+    roles: ['admin', 'kasir'],
   },
   {
     name: 'Produksi',
     path: '/production',
     icon: 'beaker',
-    roles: ['produksi'],
+    roles: ['admin', 'produksi'],
   },
 ] as const
 
