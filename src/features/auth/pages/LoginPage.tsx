@@ -35,9 +35,10 @@ export default function LoginPage() {
       })
       
       navigate('/dashboard')
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } }
       toast.error('Login gagal', {
-        description: err.response?.data?.message || 'Username atau kata sandi salah!'
+        description: error.response?.data?.message || 'Username atau kata sandi salah!'
       })
     } finally {
       setIsLoading(false)
@@ -75,7 +76,7 @@ export default function LoginPage() {
 
           <div className="flex flex-col md:flex-row">
             {/* Left side - Images Collage */}
-            <div className="hidden md:block w-full md:w-3/5 bg-gradient-to-br from-purple-600 via-violet-600 to-fuchsia-600 p-6">
+            <div className="hidden md:block w-full md:w-3/5 bg-linear-to-br from-purple-600 via-violet-600 to-fuchsia-600 p-6">
               <div className="grid grid-cols-2 grid-rows-3 gap-4 h-full">
                 {/* Top left - Image */}
                 <div className="overflow-hidden rounded-xl bg-white/10 backdrop-blur-sm">
@@ -234,7 +235,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`flex w-full justify-center rounded-lg py-3 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-300 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                  className={`flex w-full justify-center rounded-lg py-3 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-300 bg-linear-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
                     isLoading ? 'cursor-not-allowed opacity-70' : ''
                   }`}
                 >

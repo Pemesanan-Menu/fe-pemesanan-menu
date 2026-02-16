@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-linear-to-br from-purple-600 to-fuchsia-600 rounded-lg flex items-center justify-center">
               {ICONS.cart}
             </div>
             <span className="font-bold text-gray-900 dark:text-white">{APP_CONFIG.name}</span>
@@ -85,7 +85,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* User Info & Logout */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-full flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 bg-linear-to-br from-purple-600 to-fuchsia-600 rounded-full flex items-center justify-center text-white font-semibold">
               {user?.nama?.charAt(0) || 'U'}
             </div>
             <div className="flex-1 min-w-0">
