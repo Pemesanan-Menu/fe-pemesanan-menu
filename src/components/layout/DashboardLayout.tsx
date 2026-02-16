@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { MENU_ITEMS, ICONS } from '@/config/menu'
-import { APP_CONFIG } from '@/config/constants'
+import { APP_CONFIG, UI } from '@/config/constants'
 import { authUtils } from '@/utils/auth'
 import { formatDate } from '@/utils/date'
 import { useTheme } from '@/hooks/useTheme'
@@ -31,6 +31,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   
   const user = authUtils.getUser()
 
+  // Close sidebar on mobile by default, only on initial load
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false)
+    }
+  }, [])
+
   const filteredMenuItems = MENU_ITEMS.filter(item => 
     authUtils.hasRole(item.roles)
   )
@@ -44,20 +51,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className={`min-h-screen ${UI.BACKGROUND.SECONDARY}`}>
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-40 h-screen transition-transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 w-64`}
+        } ${UI.BACKGROUND.PRIMARY} border-r ${UI.BORDER.DEFAULT.split(' ')[1]} ${UI.SIDEBAR.WIDTH}`}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
+        <div className={`h-16 flex items-center justify-between px-6 border-b ${UI.BORDER.DEFAULT.split(' ')[1]}`}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-linear-to-br from-purple-600 to-fuchsia-600 rounded-lg flex items-center justify-center">
-              {ICONS.cart}
-            </div>
-            <span className="font-bold text-gray-900 dark:text-white">{APP_CONFIG.name}</span>
+            <img src="/src/asset/favicon.ico" alt="Logo" className="w-8 h-8" />
+            <span className={`${UI.FONT.WEIGHT.BOLD} ${UI.TEXT_COLOR.PRIMARY}`}>{APP_CONFIG.name}</span>
           </div>
         </div>
 
@@ -69,10 +82,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 ${UI.ROUNDED.DEFAULT} ${UI.TRANSITION.DEFAULT} ${
                   isActive
-                    ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 font-medium'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    ? `${UI.BACKGROUND.ACTIVE} ${UI.COLORS.PRIMARY.TEXT} ${UI.FONT.WEIGHT.MEDIUM}`
+                    : `text-gray-700 dark:text-gray-300 ${UI.BACKGROUND.HOVER}`
                 }`}
               >
                 {ICONS[item.icon]}
@@ -83,20 +96,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </nav>
 
         {/* User Info & Logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className={`absolute bottom-0 left-0 right-0 p-4 border-t ${UI.BORDER.DEFAULT.split(' ')[1]} ${UI.BACKGROUND.PRIMARY}`}>
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-linear-to-br from-purple-600 to-fuchsia-600 rounded-full flex items-center justify-center text-white font-semibold">
-              {user?.nama?.charAt(0) || 'U'}
+            <div className={`w-10 h-10 ${UI.COLORS.PRIMARY.GRADIENT} ${UI.ROUNDED.FULL} flex items-center justify-center text-white ${UI.FONT.WEIGHT.SEMIBOLD}`}>
+              {user?.name?.charAt(0) || 'U'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user?.nama}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{user?.role}</p>
+              <p className={`${UI.FONT.SIZE.SM} ${UI.FONT.WEIGHT.MEDIUM} ${UI.TEXT_COLOR.PRIMARY} truncate`}>{user?.name}</p>
+              <p className={`${UI.FONT.SIZE.XS} ${UI.TEXT_COLOR.SECONDARY}`}>{user?.role}</p>
             </div>
           </div>
           <Button
             onClick={() => setShowLogoutDialog(true)}
             variant="outline"
-            className="w-full justify-start gap-2 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300"
+            className={`w-full justify-start gap-2 ${UI.COLORS.DANGER.TEXT} ${UI.COLORS.DANGER.BORDER} hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-700 dark:hover:text-gray-100 hover:border-red-400 dark:hover:border-gray-600`}
           >
             {ICONS.logout}
             Keluar
@@ -126,24 +139,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </AlertDialog>
 
       {/* Main Content */}
-      <div className={`transition-all ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
+      <div className={`transition-all ${isSidebarOpen ? UI.SIDEBAR.MARGIN : 'ml-0'}`}>
         {/* Header */}
-        <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
+        <header className={`h-16 ${UI.BACKGROUND.PRIMARY} border-b ${UI.BORDER.DEFAULT.split(' ')[1]} flex items-center justify-between ${UI.SPACING.RESPONSIVE.PADDING_X}`}>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className={`p-2 ${UI.ROUNDED.DEFAULT} ${UI.BACKGROUND.HOVER} ${UI.TRANSITION.DEFAULT}`}
           >
             {ICONS.menu}
           </button>
 
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+          <div className={`flex items-center ${UI.SPACING.RESPONSIVE.GAP}`}>
+            <span className={`${UI.TEXT.BODY} ${UI.TEXT_COLOR.SECONDARY} hidden sm:block`}>
               {formatDate(new Date())}
             </span>
             
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className={`p-2 ${UI.ROUNDED.DEFAULT} ${UI.BACKGROUND.HOVER} ${UI.TRANSITION.DEFAULT}`}
             >
               {theme === 'light' ? (
                 <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +172,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className={UI.SPACING.RESPONSIVE.PADDING}>
           {children}
         </main>
       </div>

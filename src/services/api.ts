@@ -81,14 +81,13 @@ api.interceptors.response.use(
 
       switch (status) {
         case 401:
-          // Unauthorized - clear token and redirect to login
-          localStorage.removeItem('authToken')
-          localStorage.removeItem('user')
-
-          // Only redirect if not already on login page
+          // Unauthorized - clear token only if not on login page
           if (window.location.pathname !== '/login') {
+            localStorage.removeItem('authToken')
+            localStorage.removeItem('user')
             window.location.href = '/login'
           }
+          // If on login page, let the component handle the error
           break
 
         case 403:

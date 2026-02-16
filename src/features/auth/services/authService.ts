@@ -1,8 +1,8 @@
 import api from '@/services/api'
 
 export interface LoginRequest {
-  username: string
-  kataSandi: string
+  email: string
+  password: string
 }
 
 export interface LoginResponse {
@@ -11,9 +11,11 @@ export interface LoginResponse {
   data: {
     user: {
       id: string
-      nama: string
-      username: string
+      name: string
+      email: string
       role: string
+      created_at: string
+      updated_at: string
     }
     token: string
   }

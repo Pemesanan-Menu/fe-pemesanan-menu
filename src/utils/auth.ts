@@ -2,8 +2,8 @@ import { STORAGE_KEYS } from '@/config/constants'
 
 interface User {
   id: string
-  nama: string
-  username: string
+  name: string
+  email: string
   role: string
 }
 

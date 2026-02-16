@@ -44,7 +44,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Selamat Datang, {user?.nama}!
+            Selamat Datang, {user?.name}!
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Berikut adalah ringkasan aktivitas Caffe Tetangga hari ini

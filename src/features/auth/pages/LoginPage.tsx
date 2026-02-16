@@ -10,8 +10,8 @@ import { useTheme } from '@/hooks/useTheme'
 export default function LoginPage() {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
-  const [username, setUsername] = useState('')
-  const [kataSandi, setKataSandi] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   // Debug: Log API base URL
@@ -27,23 +27,41 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    e.stopPropagation()
+
+    // Validasi client-side
+    if (!email.trim()) {
+      toast.error('Email harus diisi')
+      return
+    }
+
+    if (!password.trim()) {
+      toast.error('Kata sandi harus diisi')
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Format email tidak valid')
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      const response = await authService.login({ username, kataSandi })
+      const response = await authService.login({ email, password })
       
       authUtils.setToken(response.data.token)
       authUtils.setUser(response.data.user)
       
       toast.success('Login berhasil!', {
-        description: `Selamat datang, ${response.data.user.nama}`
+        description: `Selamat datang, ${response.data.user.name}`
       })
       
       navigate('/dashboard')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } }
       toast.error('Login gagal', {
-        description: error.response?.data?.message || 'Username atau kata sandi salah!'
+        description: error.response?.data?.message || 'Email atau kata sandi salah!'
       })
     } finally {
       setIsLoading(false)
@@ -177,28 +195,27 @@ export default function LoginPage() {
                 </p>
               </div>
               
-              <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+              <form onSubmit={handleSubmit} className="space-y-6 relative z-10" noValidate>
                 <div className="space-y-2">
                   <label 
-                    htmlFor="username" 
+                    htmlFor="email" 
                     className={`block text-sm font-medium ${
                       theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
                     }`}
                   >
-                    Username
+                    Email
                   </label>
                   <input
-                    type="text"
-                    id="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className={`block w-full rounded-lg border py-3 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500 sm:text-sm ${
                       theme === 'dark' 
                         ? 'bg-slate-700 border-slate-600 text-white placeholder:text-gray-400' 
                         : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400'
                     }`}
-                    placeholder="Masukkan username"
-                    required
+                    placeholder="Masukkan email"
                   />
                 </div>
                 
@@ -215,15 +232,14 @@ export default function LoginPage() {
                     <input
                       type={showPassword ? 'text' : 'password'}
                       id="password"
-                      value={kataSandi}
-                      onChange={(e) => setKataSandi(e.target.value)}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       className={`block w-full rounded-lg border py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 sm:text-sm ${
                         theme === 'dark' 
                           ? 'bg-slate-700 border-slate-600 text-white placeholder:text-gray-400' 
                           : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400'
                       }`}
                       placeholder="Masukkan kata sandi"
-                      required
                     />
                     <button
                       type="button"

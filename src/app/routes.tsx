@@ -7,6 +7,11 @@ import type { RouteObject } from 'react-router-dom'
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
+const UserListPage = lazy(() => import('@/features/user/pages/UserListPage'))
+const ProductListPage = lazy(() => import('@/features/product/pages/ProductListPage'))
+const TableListPage = lazy(() => import('@/features/table/pages/TableListPage'))
+const OrderListPage = lazy(() => import('@/features/order/pages/OrderListPage'))
+const ProductionQueuePage = lazy(() => import('@/features/production/pages/ProductionQueuePage'))
 
 // ============================================================================
 // ROUTE DEFINITIONS
@@ -24,6 +29,26 @@ export const routes: RouteObject[] = [
   {
     path: '/dashboard',
     element: <DashboardPage />,
+  },
+  {
+    path: '/users',
+    element: <UserListPage />,
+  },
+  {
+    path: '/products',
+    element: <ProductListPage />,
+  },
+  {
+    path: '/tables',
+    element: <TableListPage />,
+  },
+  {
+    path: '/orders',
+    element: <OrderListPage />,
+  },
+  {
+    path: '/production',
+    element: <ProductionQueuePage />,
   },
 
   // Catch-all 404
