@@ -2,7 +2,7 @@
 // USER & AUTHENTICATION TYPES
 // ============================================================================
 
-export type UserRole = 'admin' | 'production' | 'cashier'
+export type UserRole = 'admin' | 'production' | 'cashier' | 'user'
 
 export interface User {
   id: string
@@ -44,24 +44,31 @@ export interface Product {
 // ORDER TYPES
 // ============================================================================
 
-export type OrderStatus = 'MENUNGGU' | 'DIPROSES' | 'SELESAI' | 'DIBAYAR' | 'DIBATALKAN'
+export type OrderStatus = 'MENUNGGU' | 'DIPROSES' | 'SIAP' | 'SELESAI' | 'DIBATALKAN'
+export type PaymentStatus = 'PENDING' | 'PAID'
 
 export interface OrderItem {
   id: string
   order_id: string
   product_id: string
-  product_name: string
+  product?: Product // Nested product data (public endpoints)
+  product_name?: string // For backward compatibility
   quantity: number
+  price: number
   subtotal: number
   notes?: string
 }
 
 export interface Order {
   id: string
+  order_number: string
   table_id: string
-  table_number: number
+  table?: Table // Nested table data
+  table_number?: number // For backward compatibility
   status: OrderStatus
-  total_price: number
+  payment_status?: PaymentStatus
+  total_amount: number
+  total_price?: number // For backward compatibility
   estimated_minutes?: number
   notes?: string
   items: OrderItem[]
@@ -82,13 +89,8 @@ export interface CreateOrderRequest {
 }
 
 export interface TrackingResponse {
-  order_id: string
-  status: OrderStatus
-  estimated_minutes?: number
-  remaining_minutes?: number
-  notes?: string
-  items: OrderItem[]
-  created_at: string
+  order: Order
+  estimated_time?: string // e.g., "10-15 menit"
 }
 
 export interface ReceiptItem {

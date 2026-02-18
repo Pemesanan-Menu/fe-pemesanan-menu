@@ -10,8 +10,8 @@ import type { OrderStatus, UserRole } from '@/types'
 export const ORDER_STATUS: Record<string, OrderStatus> = {
   MENUNGGU: 'MENUNGGU',
   DIPROSES: 'DIPROSES',
+  SIAP: 'SIAP',
   SELESAI: 'SELESAI',
-  DIBAYAR: 'DIBAYAR',
   DIBATALKAN: 'DIBATALKAN',
 } as const
 

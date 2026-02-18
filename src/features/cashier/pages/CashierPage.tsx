@@ -90,7 +90,7 @@ export default function CashierPage(): JSX.Element {
     {
       header: 'Total',
       accessor: (order: Order) => (
-        <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(order.total_price)}</span>
+        <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(order.total_amount || order.total_price || 0)}</span>
       ),
     },
     {
@@ -174,7 +174,7 @@ export default function CashierPage(): JSX.Element {
               </div>
               <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
                 <span className="text-gray-900 dark:text-white font-semibold">Total Bayar</span>
-                <span className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(selectedOrder.total_price)}</span>
+                <span className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(selectedOrder.total_amount || selectedOrder.total_price || 0)}</span>
               </div>
             </div>
 

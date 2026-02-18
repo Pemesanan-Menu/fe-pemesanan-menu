@@ -11,8 +11,8 @@ export const getOrderStatusText = (status: OrderStatus): string => {
   const statusMap: Record<OrderStatus, string> = {
     MENUNGGU: 'Menunggu',
     DIPROSES: 'Diproses',
+    SIAP: 'Siap',
     SELESAI: 'Selesai',
-    DIBAYAR: 'Dibayar',
     DIBATALKAN: 'Dibatalkan',
   }
   return statusMap[status] || status
@@ -25,8 +25,8 @@ export const getOrderStatusColor = (status: OrderStatus): string => {
   const colorMap: Record<OrderStatus, string> = {
     MENUNGGU: 'yellow',
     DIPROSES: 'blue',
+    SIAP: 'purple',
     SELESAI: 'green',
-    DIBAYAR: 'purple',
     DIBATALKAN: 'red',
   }
   return colorMap[status] || 'gray'

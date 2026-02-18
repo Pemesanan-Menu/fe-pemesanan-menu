@@ -13,6 +13,9 @@ const TableListPage = lazy(() => import('@/features/table/pages/TableListPage'))
 const ProductionQueuePage = lazy(() => import('@/features/production/pages/ProductionQueuePage'))
 const ExportOrdersPage = lazy(() => import('@/pages/ExportOrdersPage'))
 const CashierPage = lazy(() => import('@/features/cashier/pages/CashierPage'))
+const OrderPage = lazy(() => import('@/features/customer/pages/OrderPage'))
+const CustomerOrdersPage = lazy(() => import('@/features/customer/pages/CustomerOrdersPage'))
+const OrderTrackingPage = lazy(() => import('@/features/customer/pages/OrderTrackingPage'))
 
 // ============================================================================
 // ROUTE DEFINITIONS
@@ -54,6 +57,18 @@ export const routes: RouteObject[] = [
   {
     path: '/export',
     element: <ExportOrdersPage />,
+  },
+  {
+    path: '/customer/order',
+    element: <OrderPage />,
+  },
+  {
+    path: '/customer/orders',
+    element: <CustomerOrdersPage />,
+  },
+  {
+    path: '/customer/tracking/:orderId',
+    element: <OrderTrackingPage />,
   },
 
   // Catch-all 404
