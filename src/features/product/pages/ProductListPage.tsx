@@ -23,12 +23,12 @@ export default function ProductListPage(): JSX.Element {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [productToDelete, setProductToDelete] = useState<Product | null>(null)
-  const [formData, setFormData] = useState({ name: '', description: '', price: '', category: 'Makanan', stock: 0, is_available: true })
+  const [formData, setFormData] = useState({ name: '', description: '', price: '', category: 'Makanan', stock: 1, is_available: true })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleCreate = () => {
     setEditingProduct(null)
-    setFormData({ name: '', description: '', price: '', category: 'Makanan', stock: 0, is_available: true })
+    setFormData({ name: '', description: '', price: '', category: 'Makanan', stock: 1, is_available: true })
     setShowModal(true)
   }
 
@@ -184,6 +184,18 @@ export default function ProductListPage(): JSX.Element {
                 <SelectItem value="Dessert">Dessert</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="stock">Stok</Label>
+            <Input 
+              id="stock" 
+              type="number"
+              placeholder="Contoh: 50" 
+              value={formData.stock || ''} 
+              onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 1 })} 
+              min="1"
+              required 
+            />
           </div>
           {editingProduct && (
             <div className="flex items-center gap-2">
