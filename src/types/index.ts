@@ -89,8 +89,17 @@ export interface CreateOrderRequest {
 }
 
 export interface TrackingResponse {
-  order: Order
-  estimated_time?: string // e.g., "10-15 menit"
+  order_id: string
+  status: OrderStatus
+  items: Array<{
+    id: string
+    order_id: string
+    product_id: string
+    product_name: string
+    quantity: number
+    subtotal: number
+  }>
+  created_at: string
 }
 
 export interface ReceiptItem {

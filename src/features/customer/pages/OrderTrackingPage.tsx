@@ -8,7 +8,6 @@ import { getErrorMessage } from '@/types/error'
 import { formatCurrency } from '@/utils/format'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 
 export default function OrderTrackingPage(): JSX.Element {
@@ -58,11 +57,11 @@ export default function OrderTrackingPage(): JSX.Element {
   const getStatusIcon = (status: string): JSX.Element => {
     switch (status) {
       case 'SELESAI':
-        return <CheckCircle2 className="w-12 h-12 text-green-600" />
+        return <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
       case 'DIBATALKAN':
-        return <XCircle className="w-12 h-12 text-red-600" />
+        return <XCircle className="w-12 h-12 text-red-600 mx-auto" />
       default:
-        return <Clock className="w-12 h-12 text-blue-600 animate-pulse" />
+        return <Clock className="w-12 h-12 text-blue-600 animate-pulse mx-auto" />
     }
   }
 
@@ -128,24 +127,16 @@ export default function OrderTrackingPage(): JSX.Element {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Status Pesanan
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            ID Pesanan: {tracking.order.order_number}
-          </p>
         </div>
 
         {/* Status Card */}
         <Card className="mb-6">
           <CardContent className="p-8 text-center">
-            {getStatusIcon(tracking.order.status)}
+            {getStatusIcon(tracking?.status || 'MENUNGGU')}
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-4 mb-2">
-              {getStatusMessage(tracking.order.status)}
+              {getStatusMessage(tracking?.status || 'MENUNGGU')}
             </h2>
-            {getStatusBadge(tracking.order.status)}
-            {tracking.estimated_time && (
-              <p className="text-gray-600 dark:text-gray-400 mt-4">
-                Estimasi waktu: <strong>{tracking.estimated_time}</strong>
-              </p>
-            )}
+            {getStatusBadge(tracking?.status || 'MENUNGGU')}
           </CardContent>
         </Card>
 
@@ -157,25 +148,17 @@ export default function OrderTrackingPage(): JSX.Element {
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">Nomor Meja:</span>
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  {tracking.order.table?.number || '-'}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">Waktu Pesan:</span>
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  {new Date(tracking.order.created_at).toLocaleString('id-ID')}
+                <span className="text-gray-900 dark:text-white">
+                  {tracking?.created_at ? new Date(tracking.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : '-'}
                 </span>
               </div>
-              {tracking.order.payment_status && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Status Pembayaran:</span>
-                  <Badge variant={tracking.order.payment_status === 'PAID' ? 'default' : 'secondary'}>
-                    {tracking.order.payment_status === 'PAID' ? 'Lunas' : 'Belum Bayar'}
-                  </Badge>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -187,32 +170,27 @@ export default function OrderTrackingPage(): JSX.Element {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {tracking.order.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-start pb-4 border-b last:border-0">
+              {tracking?.items?.map((item) => (
+                <div key={item.id} className="flex justify-between items-start pb-4 border-b last:border-0">
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900 dark:text-white">
-                      {item.product?.name || 'Product'}
+                      {item.product_name}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {item.quantity}x {formatCurrency(item.price)}
+                      {item.quantity}x {formatCurrency(item.subtotal / item.quantity)}
                     </p>
-                    {item.notes && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 italic mt-1">
-                        Catatan: {item.notes}
-                      </p>
-                    )}
                   </div>
                   <p className="font-semibold text-gray-900 dark:text-white">
                     {formatCurrency(item.subtotal)}
                   </p>
                 </div>
-              ))}
+              )) || <p className="text-gray-500">Tidak ada item</p>}
 
               <div className="pt-4 border-t">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-bold text-gray-900 dark:text-white">Total</span>
-                  <span className="text-2xl font-bold text-blue-600">
-                    {formatCurrency(tracking.order.total_amount)}
+                  <span className="text-2xl font-bold text-purple-600">
+                    {formatCurrency(tracking?.items?.reduce((sum, item) => sum + item.subtotal, 0) || 0)}
                   </span>
                 </div>
               </div>

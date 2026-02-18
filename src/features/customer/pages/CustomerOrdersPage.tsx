@@ -76,56 +76,42 @@ export default function CustomerOrdersPage(): JSX.Element {
         ) : (
           <div className="space-y-4">
             {orders.map((tracking) => (
-              <Card key={tracking.order.id} className="hover:shadow-lg transition-shadow">
+              <Card key={tracking.order_id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-lg">
-                        Pesanan #{tracking.order.order_number}
+                        Pesanan
                       </CardTitle>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {new Date(tracking.order.created_at).toLocaleDateString('id-ID', {
+                        {new Date(tracking.created_at).toLocaleDateString('id-ID', {
                           day: 'numeric',
-                          month: 'long',
+                          month: 'short',
                           year: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
                         })}
                       </p>
                     </div>
-                    {getStatusBadge(tracking.order.status)}
+                    {getStatusBadge(tracking.status)}
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">Meja:</span>
-                      <span className="font-semibold">
-                        {tracking.order.table?.number || '-'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-400">Total Item:</span>
                       <span className="font-semibold">
-                        {tracking.order.items.length} item
+                        {tracking.items.length} item
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600 dark:test-gray-400">Total:</span>
-                      <span className="font-bold text-blue-600">
-                        {formatCurrency(tracking.order.total_amount)}
+                      <span className="text-gray-600 dark:text-gray-400">Total:</span>
+                      <span className="font-bold text-purple-600">
+                        {formatCurrency(tracking.items.reduce((sum, item) => sum + item.subtotal, 0))}
                       </span>
                     </div>
-                    {tracking.estimated_time && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Estimasi:</span>
-                        <span className="font-semibold text-green-600">
-                          {tracking.estimated_time}
-                        </span>
-                      </div>
-                    )}
                     <Button
-                      onClick={() => handleViewOrder(tracking.order.id)}
+                      onClick={() => handleViewOrder(tracking.order_id)}
                       className="w-full mt-4"
                       variant="outline"
                     >
