@@ -1,5 +1,6 @@
 import { ReactNode, useState, useMemo } from 'react'
 import { UI } from '@/config/constants'
+import { PaginationMeta } from '@/types'
 
 interface Column<T> {
   header: string
@@ -18,6 +19,10 @@ interface DataTableProps<T> {
   searchable?: boolean
   searchPlaceholder?: string
   searchKeys?: (keyof T)[]
+  showNumber?: boolean
+  // Server-side pagination
+  meta?: PaginationMeta | null
+  onPageChange?: (page: number) => void
 }
 
 export function DataTable<T extends { id: string }>({
@@ -31,16 +36,25 @@ export function DataTable<T extends { id: string }>({
   searchable = true,
   searchPlaceholder = 'Cari...',
   searchKeys = [],
+  showNumber = true,
+  meta,
+  onPageChange,
 }: DataTableProps<T>) {
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
+  // Ensure data is always an array
+  const safeData = Array.isArray(data) ? data : []
+  
+  // Use server-side pagination if meta is provided
+  const isServerSide = !!meta && !!onPageChange
+
   // Filter data based on search
   const filteredData = useMemo(() => {
-    if (!searchable || !searchQuery.trim()) return data
+    if (!searchable || !searchQuery.trim()) return safeData
 
-    return data.filter((item) => {
+    return safeData.filter((item) => {
       const searchLower = searchQuery.toLowerCase()
       
       // Search in specified keys
@@ -56,23 +70,37 @@ export function DataTable<T extends { id: string }>({
         String(value).toLowerCase().includes(searchLower)
       )
     })
-  }, [data, searchQuery, searchable, searchKeys])
+  }, [safeData, searchQuery, searchable, searchKeys])
 
   // Paginate data
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
+  const totalPages = isServerSide ? (meta?.total_pages || 1) : Math.ceil(filteredData.length / itemsPerPage)
   const paginatedData = useMemo(() => {
+    if (isServerSide) {
+      // Server-side: use data as-is
+      return filteredData
+    }
+    // Client-side: slice data
     const startIndex = (currentPage - 1) * itemsPerPage
     return filteredData.slice(startIndex, startIndex + itemsPerPage)
-  }, [filteredData, currentPage])
+  }, [filteredData, currentPage, isServerSide])
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    if (isServerSide && onPageChange) {
+      onPageChange(page)
+    }
+  }
 
   // Reset to page 1 when search changes
   const handleSearch = (value: string) => {
     setSearchQuery(value)
-    setCurrentPage(1)
+    handlePageChange(1)
   }
 
   const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
+    const validPage = Math.max(1, Math.min(page, totalPages))
+    handlePageChange(validPage)
   }
 
   return (
@@ -119,6 +147,11 @@ export function DataTable<T extends { id: string }>({
           <table className="w-full min-w-[640px]">
             <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
               <tr>
+                {showNumber && (
+                  <th className={`${UI.SPACING.RESPONSIVE.PADDING_X} py-3 lg:py-4 text-left ${UI.FONT.SIZE.XS} ${UI.FONT.WEIGHT.SEMIBOLD} text-gray-700 dark:text-gray-300 uppercase tracking-wider w-16`}>
+                    No
+                  </th>
+                )}
                 {columns.map((col, idx) => (
                   <th
                     key={idx}
@@ -137,7 +170,7 @@ export function DataTable<T extends { id: string }>({
             <tbody className={`divide-y divide-gray-200 dark:divide-gray-700 ${UI.BACKGROUND.PRIMARY}`}>
               {isLoading ? (
                 <tr>
-                  <td colSpan={columns.length + (onEdit || onDelete ? 1 : 0)} className={`${UI.SPACING.RESPONSIVE.PADDING_X} py-12 text-center`}>
+                  <td colSpan={columns.length + (onEdit || onDelete ? 1 : 0) + (showNumber ? 1 : 0)} className={`${UI.SPACING.RESPONSIVE.PADDING_X} py-12 text-center`}>
                     <div className="flex flex-col items-center justify-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-3"></div>
                       <p className={`${UI.TEXT.BODY} ${UI.TEXT_COLOR.SECONDARY}`}>Memuat data...</p>
@@ -146,7 +179,7 @@ export function DataTable<T extends { id: string }>({
                 </tr>
               ) : paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length + (onEdit || onDelete ? 1 : 0)} className={`${UI.SPACING.RESPONSIVE.PADDING_X} py-12 text-center`}>
+                  <td colSpan={columns.length + (onEdit || onDelete ? 1 : 0) + (showNumber ? 1 : 0)} className={`${UI.SPACING.RESPONSIVE.PADDING_X} py-12 text-center`}>
                     <div className="flex flex-col items-center justify-center">
                       {emptyIcon || (
                         <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,8 +198,13 @@ export function DataTable<T extends { id: string }>({
                   </td>
                 </tr>
               ) : (
-                paginatedData.map((item) => (
+                paginatedData.map((item, idx) => (
                   <tr key={item.id} className={`${UI.BACKGROUND.HOVER} ${UI.TRANSITION.DEFAULT}`}>
+                    {showNumber && (
+                      <td className={`${UI.SPACING.RESPONSIVE.PADDING_X} py-3 lg:py-4 text-gray-500 dark:text-gray-400`}>
+                        {isServerSide ? ((meta?.page || 1) - 1) * (meta?.limit || 10) + idx + 1 : (currentPage - 1) * itemsPerPage + idx + 1}
+                      </td>
+                    )}
                     {columns.map((col, idx) => (
                       <td key={idx} className={`${UI.SPACING.RESPONSIVE.PADDING_X} py-3 lg:py-4`}>
                         {col.accessor(item)}
@@ -212,7 +250,7 @@ export function DataTable<T extends { id: string }>({
       {!isLoading && filteredData.length > 0 && (
         <div className="flex items-center justify-between">
           <p className={`${UI.FONT.SIZE.SM} ${UI.TEXT_COLOR.SECONDARY}`}>
-            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredData.length)} dari {filteredData.length} data
+            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, isServerSide ? (meta?.total || 0) : filteredData.length)} dari {isServerSide ? (meta?.total || 0) : filteredData.length} data
           </p>
           
           <div className="flex items-center gap-2">

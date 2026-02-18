@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useUsers } from '../hooks/useUsers'
 import { userService } from '../services/userService'
-import { User } from '@/types/user'
+import { User } from '@/types'
 import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -15,17 +15,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 
 export default function UserListPage() {
-  const { users, isLoading, refetch } = useUsers()
+  const { users, meta, isLoading, refetch } = useUsers()
   const [showModal, setShowModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'kasir' })
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'cashier' })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleCreate = () => {
     setEditingUser(null)
-    setFormData({ name: '', email: '', password: '', role: 'kasir' })
+    setFormData({ name: '', email: '', password: '', role: 'cashier' })
     setShowModal(true)
   }
 
@@ -95,7 +95,7 @@ export default function UserListPage() {
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
           user.role === 'admin'
             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-            : user.role === 'kasir'
+            : user.role === 'cashier'
             ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
             : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
         }`}>
@@ -139,6 +139,8 @@ export default function UserListPage() {
           onDelete={handleDelete}
           searchPlaceholder="Cari nama atau email..."
           searchKeys={['name', 'email', 'role']}
+          meta={meta}
+          onPageChange={(page) => refetch(page)}
         />
       </div>
 

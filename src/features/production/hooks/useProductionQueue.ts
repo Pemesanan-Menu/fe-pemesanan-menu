@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { productionService } from '../services/productionService'
-import { ProductionItem } from '@/types/production'
+import { Order } from '@/types'
 
 export function useProductionQueue() {
-  const [items, setItems] = useState<ProductionItem[]>([])
+  const [items, setItems] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const hasFetched = useRef(false)
 
   const fetchQueue = async () => {
     try {
@@ -19,6 +20,8 @@ export function useProductionQueue() {
   }
 
   useEffect(() => {
+    if (hasFetched.current) return
+    hasFetched.current = true
     fetchQueue()
   }, [])
 

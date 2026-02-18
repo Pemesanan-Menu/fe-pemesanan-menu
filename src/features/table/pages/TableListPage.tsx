@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTables } from '../hooks/useTables'
 import { tableService } from '../services/tableService'
-import { Table } from '@/types/table'
+import { Table } from '@/types'
 import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 
 export default function TableListPage() {
-  const { tables, isLoading, refetch } = useTables()
+  const { tables, meta, isLoading, refetch } = useTables()
   const [showModal, setShowModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [editingTable, setEditingTable] = useState<Table | null>(null)
@@ -142,6 +142,8 @@ export default function TableListPage() {
           onDelete={handleDelete}
           searchPlaceholder="Cari nomor meja..."
           searchKeys={['number']}
+          meta={meta}
+          onPageChange={(page) => refetch(page)}
         />
       </div>
 

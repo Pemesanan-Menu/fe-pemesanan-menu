@@ -12,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { MENU_ITEMS, ICONS } from '@/config/menu'
+import { MENU_GROUPS, ICONS } from '@/config/menu'
 import { APP_CONFIG, UI } from '@/config/constants'
 import { authUtils } from '@/utils/auth'
 import { formatDate } from '@/utils/date'
@@ -38,9 +38,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [])
 
-  const filteredMenuItems = MENU_ITEMS.filter(item => 
-    authUtils.hasRole(item.roles)
-  )
+  const filteredMenuGroups = MENU_GROUPS.map(group => ({
+    ...group,
+    items: group.items.filter(item => authUtils.hasRole(item.roles))
+  })).filter(group => group.items.length > 0)
 
   const handleLogout = () => {
     authUtils.logout()
@@ -75,24 +76,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1">
-          {filteredMenuItems.map((item) => {
-            const isActive = location.pathname === item.path
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 ${UI.ROUNDED.DEFAULT} ${UI.TRANSITION.DEFAULT} ${
-                  isActive
-                    ? `${UI.BACKGROUND.ACTIVE} ${UI.COLORS.PRIMARY.TEXT} ${UI.FONT.WEIGHT.MEDIUM}`
-                    : `text-gray-700 dark:text-gray-300 ${UI.BACKGROUND.HOVER}`
-                }`}
-              >
-                {ICONS[item.icon]}
-                <span>{item.name}</span>
-              </Link>
-            )
-          })}
+        <nav className="p-4 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          {filteredMenuGroups.map((group, groupIndex) => (
+            <div key={groupIndex}>
+              <div className="px-4 mb-2">
+                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  {group.label}
+                </span>
+              </div>
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive = location.pathname === item.path
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`flex items-center gap-3 px-4 py-3 ${UI.ROUNDED.DEFAULT} ${UI.TRANSITION.DEFAULT} ${
+                        isActive
+                          ? `${UI.BACKGROUND.ACTIVE} ${UI.COLORS.PRIMARY.TEXT} ${UI.FONT.WEIGHT.MEDIUM}`
+                          : `text-gray-700 dark:text-gray-300 ${UI.BACKGROUND.HOVER}`
+                      }`}
+                    >
+                      {ICONS[item.icon]}
+                      <span>{item.name}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User Info & Logout */}

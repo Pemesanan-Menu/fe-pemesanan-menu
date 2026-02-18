@@ -1,11 +1,18 @@
 import api from '@/services/api'
-import { Product } from '@/types/product'
+import { Product, PaginatedData, PaginationMeta } from '@/types'
+
+interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data: T
+}
 
 interface CreateProductRequest {
   name: string
   description: string
   price: number
   category: string
+  stock: number
 }
 
 interface UpdateProductRequest {
@@ -13,26 +20,34 @@ interface UpdateProductRequest {
   description?: string
   price?: number
   category?: string
+  stock?: number
   is_available?: boolean
 }
 
 export const productService = {
-  getAll: async () => {
-    const { data } = await api.get<{ success: boolean; data: Product[] }>('/api/products')
+  getAll: async (page = 1, limit = 10): Promise<{ items: Product[], meta: PaginationMeta }> => {
+    const { data } = await api.get<ApiResponse<PaginatedData<Product>>>('/products', {
+      params: { page, limit }
+    })
+    return { items: data.data.items || [], meta: data.data.meta }
+  },
+
+  getById: async (id: string): Promise<Product> => {
+    const { data } = await api.get<ApiResponse<Product>>(`/products/${id}`)
     return data.data
   },
 
-  create: async (productData: CreateProductRequest) => {
-    const { data } = await api.post<{ success: boolean; data: Product }>('/api/products', productData)
+  create: async (productData: CreateProductRequest): Promise<Product> => {
+    const { data } = await api.post<ApiResponse<Product>>('/products', productData)
     return data.data
   },
 
-  update: async (id: string, productData: UpdateProductRequest) => {
-    const { data } = await api.put<{ success: boolean; data: Product }>(`/api/products/${id}`, productData)
+  update: async (id: string, productData: UpdateProductRequest): Promise<Product> => {
+    const { data } = await api.put<ApiResponse<Product>>(`/products/${id}`, productData)
     return data.data
   },
 
-  delete: async (id: string) => {
-    await api.delete(`/api/products/${id}`)
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/products/${id}`)
   },
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useProducts } from '../hooks/useProducts'
 import { productService } from '../services/productService'
-import { Product } from '@/types/product'
+import { Product } from '@/types'
 import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -17,17 +17,17 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { formatCurrency, formatInputNumber, parseFormattedNumber } from '@/utils/format'
 
 export default function ProductListPage() {
-  const { products, isLoading, refetch } = useProducts()
+  const { products, meta, isLoading, refetch } = useProducts()
   const [showModal, setShowModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [productToDelete, setProductToDelete] = useState<Product | null>(null)
-  const [formData, setFormData] = useState({ name: '', description: '', price: '', category: 'Makanan', is_available: true })
+  const [formData, setFormData] = useState({ name: '', description: '', price: '', category: 'Makanan', stock: 0, is_available: true })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleCreate = () => {
     setEditingProduct(null)
-    setFormData({ name: '', description: '', price: '', category: 'Makanan', is_available: true })
+    setFormData({ name: '', description: '', price: '', category: 'Makanan', stock: 0, is_available: true })
     setShowModal(true)
   }
 
@@ -38,6 +38,7 @@ export default function ProductListPage() {
       description: product.description,
       price: formatInputNumber(product.price.toString()),
       category: product.category,
+      stock: product.stock,
       is_available: product.is_available,
     })
     setShowModal(true)
@@ -131,6 +132,8 @@ export default function ProductListPage() {
           onDelete={handleDelete}
           searchPlaceholder="Cari nama produk..."
           searchKeys={['name', 'category']}
+          meta={meta}
+          onPageChange={(page) => refetch(page)}
         />
       </div>
 

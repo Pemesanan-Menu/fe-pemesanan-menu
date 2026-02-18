@@ -1,5 +1,11 @@
 import api from '@/services/api'
-import { User } from '@/types/user'
+import { User, PaginatedData } from '@/types'
+
+interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data: T
+}
 
 interface CreateUserRequest {
   name: string
@@ -15,22 +21,29 @@ interface UpdateUserRequest {
 }
 
 export const userService = {
-  getAll: async () => {
-    const { data } = await api.get<{ success: boolean; data: User[] }>('/api/users')
+  getAll: async (page = 1, limit = 10): Promise<PaginatedData<User>> => {
+    const { data } = await api.get<ApiResponse<PaginatedData<User>>>('/users', {
+      params: { page, limit }
+    })
     return data.data
   },
 
-  create: async (userData: CreateUserRequest) => {
-    const { data } = await api.post<{ success: boolean; data: User }>('/api/users', userData)
+  getById: async (id: string): Promise<User> => {
+    const { data } = await api.get<ApiResponse<User>>(`/users/${id}`)
     return data.data
   },
 
-  update: async (id: string, userData: UpdateUserRequest) => {
-    const { data } = await api.put<{ success: boolean; data: User }>(`/api/users/${id}`, userData)
+  create: async (userData: CreateUserRequest): Promise<User> => {
+    const { data } = await api.post<ApiResponse<User>>('/users', userData)
     return data.data
   },
 
-  delete: async (id: string) => {
-    await api.delete(`/api/users/${id}`)
+  update: async (id: string, userData: UpdateUserRequest): Promise<User> => {
+    const { data } = await api.put<ApiResponse<User>>(`/users/${id}`, userData)
+    return data.data
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/users/${id}`)
   },
 }

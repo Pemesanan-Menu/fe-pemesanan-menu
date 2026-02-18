@@ -1,18 +1,21 @@
-import { useState, useEffect } from 'react'
-import { User } from '@/types/user'
+import { useState, useEffect, useRef } from 'react'
+import { User, PaginationMeta } from '@/types'
 import { userService } from '../services/userService'
 
 export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([])
+  const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const hasFetched = useRef(false)
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1) => {
     try {
       setIsLoading(true)
       setError(null)
-      const data = await userService.getAll()
-      setUsers(data)
+      const response = await userService.getAll(page)
+      setUsers(response.items)
+      setMeta(response.meta)
     } catch (err) {
       setError('Gagal memuat data pengguna')
       console.error(err)
@@ -22,8 +25,10 @@ export const useUsers = () => {
   }
 
   useEffect(() => {
+    if (hasFetched.current) return
+    hasFetched.current = true
     fetchUsers()
   }, [])
 
-  return { users, isLoading, error, refetch: fetchUsers }
+  return { users, meta, isLoading, error, refetch: fetchUsers }
 }

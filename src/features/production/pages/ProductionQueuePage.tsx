@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useProductionQueue } from '../hooks/useProductionQueue'
 import { productionService } from '../services/productionService'
-import { ProductionItem } from '@/types/production'
+import { Order, OrderStatus } from '@/types'
 import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -14,11 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 export default function ProductionQueuePage() {
   const { items, isLoading, refetch } = useProductionQueue()
   const [showStatusModal, setShowStatusModal] = useState(false)
-  const [editingItem, setEditingItem] = useState<ProductionItem | null>(null)
-  const [newStatus, setNewStatus] = useState<'pending' | 'in_progress' | 'completed'>('pending')
+  const [editingItem, setEditingItem] = useState<Order | null>(null)
+  const [newStatus, setNewStatus] = useState<OrderStatus>('MENUNGGU')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleUpdateStatus = (item: ProductionItem) => {
+  const handleUpdateStatus = (item: Order) => {
     setEditingItem(item)
     setNewStatus(item.status)
     setShowStatusModal(true)
@@ -41,26 +41,26 @@ export default function ProductionQueuePage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return { bg: 'bg-yellow-100 dark:bg-yellow-900/20', text: 'text-yellow-800 dark:text-yellow-400' }
-      case 'in_progress': return { bg: 'bg-blue-100 dark:bg-blue-900/20', text: 'text-blue-800 dark:text-blue-400' }
-      case 'completed': return { bg: 'bg-green-100 dark:bg-green-900/20', text: 'text-green-800 dark:text-green-400' }
+      case 'MENUNGGU': return { bg: 'bg-yellow-100 dark:bg-yellow-900/20', text: 'text-yellow-800 dark:text-yellow-400' }
+      case 'DIPROSES': return { bg: 'bg-blue-100 dark:bg-blue-900/20', text: 'text-blue-800 dark:text-blue-400' }
+      case 'SELESAI': return { bg: 'bg-green-100 dark:bg-green-900/20', text: 'text-green-800 dark:text-green-400' }
       default: return { bg: 'bg-gray-100 dark:bg-gray-900/20', text: 'text-gray-800 dark:text-gray-400' }
     }
   }
 
   const columns = [
     {
-      header: 'Produk',
-      accessor: (item: ProductionItem) => (
+      header: 'Order',
+      accessor: (item: Order) => (
         <div>
-          <p className="font-medium text-gray-900 dark:text-white">{item.product_name}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity}</p>
+          <p className="font-medium text-gray-900 dark:text-white">Order #{item.id.slice(0, 8)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{item.items.length} items</p>
         </div>
       ),
     },
     {
       header: 'Meja',
-      accessor: (item: ProductionItem) => (
+      accessor: (item: Order) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
             {item.table_number}
@@ -71,26 +71,26 @@ export default function ProductionQueuePage() {
     },
     {
       header: 'Pelanggan',
-      accessor: (item: ProductionItem) => (
-        <span className="text-gray-900 dark:text-white">{item.customer_name}</span>
+      accessor: (item: Order) => (
+        <span className="text-gray-900 dark:text-white">{item.table_number}</span>
       ),
     },
     {
       header: 'Status',
-      accessor: (item: ProductionItem) => {
+      accessor: (item: Order) => {
         const colors = getStatusColor(item.status)
         return (
           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colors.bg} ${colors.text}`}>
-            {item.status === 'pending' && 'Menunggu'}
-            {item.status === 'in_progress' && 'Sedang Diproses'}
-            {item.status === 'completed' && 'Selesai'}
+            {item.status === 'MENUNGGU' && 'Menunggu'}
+            {item.status === 'DIPROSES' && 'Sedang Diproses'}
+            {item.status === 'SELESAI' && 'Selesai'}
           </span>
         )
       },
     },
     {
       header: 'Waktu',
-      accessor: (item: ProductionItem) => (
+      accessor: (item: Order) => (
         <span className="text-sm text-gray-500 dark:text-gray-400">
           {new Date(item.created_at).toLocaleString('id-ID', {
             day: 'numeric',
@@ -118,7 +118,7 @@ export default function ProductionQueuePage() {
           emptyMessage="Tidak ada antrian produksi"
           onEdit={handleUpdateStatus}
           searchPlaceholder="Cari produk atau pelanggan..."
-          searchKeys={['product_name', 'customer_name', 'table_number', 'status']}
+          searchKeys={['table_number', 'table_number', 'table_number', 'status']}
         />
       </div>
 
@@ -127,7 +127,7 @@ export default function ProductionQueuePage() {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select value={newStatus} onValueChange={(value: 'pending' | 'in_progress' | 'completed') => setNewStatus(value)}>
+            <Select value={newStatus} onValueChange={(value: 'MENUNGGU' | 'DIPROSES' | 'SELESAI') => setNewStatus(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

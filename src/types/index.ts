@@ -2,90 +2,111 @@
 // USER & AUTHENTICATION TYPES
 // ============================================================================
 
-export type UserRole = 'admin' | 'production' | 'cashier' | 'customer'
+export type UserRole = 'admin' | 'production' | 'cashier'
 
 export interface User {
   id: string
-  username: string
-  email?: string
+  name: string
+  email: string
   role: UserRole
-  createdAt: string
+  created_at: string
+  updated_at: string
 }
 
-export interface LoginCredentials {
-  username: string
+export interface LoginRequest {
+  email: string
   password: string
 }
 
-export interface AuthResponse {
+export interface LoginResponse {
   user: User
   token: string
 }
 
 // ============================================================================
-// MENU TYPES
+// PRODUCT TYPES
 // ============================================================================
 
-export interface MenuItem {
+export interface Product {
   id: string
   name: string
   description: string
   category: string
   price: number
-  imageUrl: string
-  isAvailable: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface MenuCategory {
-  id: string
-  name: string
-  description?: string
-  order: number
+  stock: number
+  image_url: string
+  is_available: boolean
+  created_at: string
+  updated_at: string
 }
 
 // ============================================================================
 // ORDER TYPES
 // ============================================================================
 
-export type OrderStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'PAID' | 'CANCELLED'
+export type OrderStatus = 'MENUNGGU' | 'DIPROSES' | 'SELESAI' | 'DIBAYAR' | 'DIBATALKAN'
 
 export interface OrderItem {
   id: string
-  menuItemId: string
-  menuItem: MenuItem
+  order_id: string
+  product_id: string
+  product_name: string
   quantity: number
-  price: number
   subtotal: number
   notes?: string
 }
 
 export interface Order {
   id: string
-  orderNumber: string
-  tableNumber: number
-  items: OrderItem[]
+  table_id: string
+  table_number: number
   status: OrderStatus
-  totalPrice: number
-  estimatedTime?: number
-  createdAt: string
-  updatedAt: string
-  completedAt?: string
+  total_price: number
+  estimated_minutes?: number
+  notes?: string
+  items: OrderItem[]
+  paid_at?: string
+  cancelled_by?: string
+  created_at: string
+  updated_at: string
 }
 
-export interface CreateOrderDTO {
-  tableNumber: number
+export interface CreateOrderRequest {
+  table_id: string
+  notes?: string
   items: Array<{
-    menuItemId: string
+    product_id: string
     quantity: number
     notes?: string
   }>
 }
 
-export interface UpdateOrderStatusDTO {
+export interface TrackingResponse {
+  order_id: string
   status: OrderStatus
-  estimatedTime?: number
+  estimated_minutes?: number
+  remaining_minutes?: number
+  notes?: string
+  items: OrderItem[]
+  created_at: string
+}
+
+export interface ReceiptItem {
+  product_name: string
+  quantity: number
+  subtotal: number
+  notes?: string
+}
+
+export interface ReceiptResponse {
+  order_id: string
+  table_number: number
+  status: OrderStatus
+  total_price: number
+  notes?: string
+  items: ReceiptItem[]
+  ordered_at: string
+  paid_at?: string
 }
 
 // ============================================================================
@@ -94,11 +115,71 @@ export interface UpdateOrderStatusDTO {
 
 export interface Table {
   id: string
-  tableNumber: number
-  capacity: number
-  qrCode: string
-  isActive: boolean
-  createdAt: string
+  number: number
+  qr_code_url: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+// ============================================================================
+// PRODUCTION TYPES
+// ============================================================================
+
+export interface UpdateStatusRequest {
+  status: OrderStatus
+  estimated_minutes?: number
+}
+
+export interface ProductionLog {
+  id: string
+  order_id: string
+  previous_status: OrderStatus
+  new_status: OrderStatus
+  changed_by: string
+  changed_at: string
+}
+
+// ============================================================================
+// DASHBOARD TYPES
+// ============================================================================
+
+export interface RevenueStats {
+  today: number
+  this_week: number
+  this_month: number
+}
+
+export interface OrderStats {
+  total_today: number
+  menunggu: number
+  diproses: number
+  selesai: number
+  dibayar: number
+  dibatalkan: number
+}
+
+export interface TopProduct {
+  product_id: string
+  product_name: string
+  total_sold: number
+  total_revenue: number
+}
+
+export interface RecentOrder {
+  order_id: string
+  table_number: number
+  status: OrderStatus
+  total_price: number
+  item_count: number
+  created_at: string
+}
+
+export interface DashboardResponse {
+  revenue: RevenueStats
+  order_stats: OrderStats
+  top_products: TopProduct[]
+  recent_orders: RecentOrder[]
 }
 
 // ============================================================================
@@ -106,7 +187,7 @@ export interface Table {
 // ============================================================================
 
 export interface CartItem {
-  menuItem: MenuItem
+  product: Product
   quantity: number
   notes?: string
 }
@@ -127,43 +208,22 @@ export interface ApiResponse<T> {
   message?: string
 }
 
-export interface PaginatedResponse<T> {
-  data: T[]
-  meta: {
-    total: number
-    page: number
-    perPage: number
-    totalPages: number
-  }
+export interface PaginationMeta {
+  page: number
+  limit: number
+  total: number
+  total_pages: number
 }
 
-export interface ApiError {
+export interface PaginatedData<T> {
+  items: T[]
+  meta: PaginationMeta
+}
+
+export interface ErrorResponse {
+  success: boolean
   message: string
-  errors?: Record<string, string[]>
-  statusCode: number
-}
-
-// ============================================================================
-// PRODUCTION TYPES
-// ============================================================================
-
-export interface ProductionOrder extends Order {
-  priority: number
-  assignedTo?: string
-}
-
-// ============================================================================
-// PAYMENT TYPES
-// ============================================================================
-
-export interface Payment {
-  id: string
-  orderId: string
-  amount: number
-  paymentMethod: 'CASH' | 'CARD' | 'E_WALLET'
-  status: 'PENDING' | 'COMPLETED' | 'FAILED'
-  paidAt?: string
-  createdAt: string
+  errors?: Record<string, string>
 }
 
 // ============================================================================

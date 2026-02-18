@@ -1,42 +1,84 @@
-// Menu configuration
-export const MENU_ITEMS = [
+// Menu item type definition
+type MenuItem = {
+  name: string
+  path: string
+  icon: 'home' | 'users' | 'book' | 'table' | 'clipboard' | 'beaker' | 'download'
+  roles: readonly string[]
+}
+
+type MenuGroup = {
+  label: string
+  items: MenuItem[]
+}
+
+// Menu configuration with hierarchy
+export const MENU_GROUPS: MenuGroup[] = [
   {
-    name: 'Dashboard',
-    path: '/dashboard',
-    icon: 'home',
-    roles: [],
+    label: 'Menu Utama',
+    items: [
+      {
+        name: 'Dashboard',
+        path: '/dashboard',
+        icon: 'home',
+        roles: [],
+      },
+    ],
   },
   {
-    name: 'Pengguna',
-    path: '/users',
-    icon: 'users',
-    roles: ['admin'],
+    label: 'Master Data',
+    items: [
+      {
+        name: 'Pengguna',
+        path: '/users',
+        icon: 'users',
+        roles: ['admin'],
+      },
+      {
+        name: 'Produk',
+        path: '/products',
+        icon: 'book',
+        roles: ['admin'],
+      },
+      {
+        name: 'Meja',
+        path: '/tables',
+        icon: 'table',
+        roles: ['admin'],
+      },
+    ],
   },
   {
-    name: 'Produk',
-    path: '/products',
-    icon: 'book',
-    roles: ['admin'],
+    label: 'Transaksi',
+    items: [
+      {
+        name: 'Pesanan',
+        path: '/orders',
+        icon: 'clipboard',
+        roles: ['admin', 'kasir'],
+      },
+      {
+        name: 'Produksi',
+        path: '/production',
+        icon: 'beaker',
+        roles: ['admin', 'produksi'],
+      },
+    ],
   },
   {
-    name: 'Meja',
-    path: '/tables',
-    icon: 'table',
-    roles: ['admin'],
+    label: 'Laporan',
+    items: [
+      {
+        name: 'Export Laporan',
+        path: '/export',
+        icon: 'download',
+        roles: ['admin'],
+      },
+    ],
   },
-  {
-    name: 'Pesanan',
-    path: '/orders',
-    icon: 'clipboard',
-    roles: ['admin', 'kasir'],
-  },
-  {
-    name: 'Produksi',
-    path: '/production',
-    icon: 'beaker',
-    roles: ['admin', 'produksi'],
-  },
-] as const
+]
+
+// Legacy flat menu for backward compatibility
+export const MENU_ITEMS: MenuItem[] = MENU_GROUPS.flatMap(group => group.items)
 
 // Icon mapping
 export const ICONS = {
@@ -73,6 +115,11 @@ export const ICONS = {
   chart: (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  ),
+  download: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
   ),
   logout: (

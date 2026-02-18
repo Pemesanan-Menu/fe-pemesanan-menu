@@ -1,5 +1,5 @@
 import api from '@/services/api'
-import { ProductionItem, UpdateProductionStatusRequest } from '@/types/production'
+import { Order, UpdateStatusRequest, ProductionLog, PaginatedData } from '@/types'
 
 interface ApiResponse<T> {
   success: boolean
@@ -8,13 +8,20 @@ interface ApiResponse<T> {
 }
 
 export const productionService = {
-  getQueue: async (): Promise<ProductionItem[]> => {
-    const { data } = await api.get<ApiResponse<ProductionItem[]>>('/production/queue')
+  getQueue: async (): Promise<Order[]> => {
+    const { data } = await api.get<ApiResponse<PaginatedData<Order>>>('/production/queue', {
+      params: { limit: 100 }
+    })
+    return data.data.items || []
+  },
+
+  updateStatus: async (id: string, payload: UpdateStatusRequest): Promise<ProductionLog> => {
+    const { data } = await api.patch<ApiResponse<ProductionLog>>(`/production/orders/${id}`, payload)
     return data.data
   },
 
-  updateStatus: async (id: string, payload: UpdateProductionStatusRequest): Promise<ProductionItem> => {
-    const { data } = await api.patch<ApiResponse<ProductionItem>>(`/production/${id}/status`, payload)
+  getLogs: async (id: string): Promise<ProductionLog[]> => {
+    const { data } = await api.get<ApiResponse<ProductionLog[]>>(`/production/orders/${id}/logs`)
     return data.data
   },
 }

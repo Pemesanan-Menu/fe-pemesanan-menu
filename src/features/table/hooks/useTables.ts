@@ -1,18 +1,21 @@
-import { useState, useEffect } from 'react'
-import { Table } from '@/types/table'
+import { useState, useEffect, useRef } from 'react'
+import { Table, PaginationMeta } from '@/types'
 import { tableService } from '../services/tableService'
 
 export const useTables = () => {
   const [tables, setTables] = useState<Table[]>([])
+  const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const hasFetched = useRef(false)
 
-  const fetchTables = async () => {
+  const fetchTables = async (page = 1) => {
     try {
       setIsLoading(true)
       setError(null)
-      const data = await tableService.getAll()
-      setTables(data)
+      const response = await tableService.getAll(page)
+      setTables(response.items)
+      setMeta(response.meta)
     } catch (err) {
       setError('Gagal memuat data meja')
       console.error(err)
@@ -22,8 +25,10 @@ export const useTables = () => {
   }
 
   useEffect(() => {
+    if (hasFetched.current) return
+    hasFetched.current = true
     fetchTables()
   }, [])
 
-  return { tables, isLoading, error, refetch: fetchTables }
+  return { tables, meta, isLoading, error, refetch: fetchTables }
 }

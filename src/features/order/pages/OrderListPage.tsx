@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useOrders } from '../hooks/useOrders'
 import { orderService } from '../services/orderService'
-import { Order } from '@/types/order'
+import { Order, OrderStatus } from '@/types'
 import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -14,12 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatCurrency } from '@/utils/format'
 
 export default function OrderListPage() {
-  const { orders, isLoading, refetch } = useOrders()
+  const { orders, meta, isLoading, refetch } = useOrders()
   const [showStatusModal, setShowStatusModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [editingOrder, setEditingOrder] = useState<Order | null>(null)
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null)
-  const [newStatus, setNewStatus] = useState<'pending' | 'processing' | 'completed' | 'cancelled'>('pending')
+  const [newStatus, setNewStatus] = useState<OrderStatus>('MENUNGGU')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleUpdateStatus = (order: Order) => {
@@ -64,10 +64,10 @@ export default function OrderListPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return { bg: 'bg-yellow-100 dark:bg-yellow-900/20', text: 'text-yellow-800 dark:text-yellow-400' }
-      case 'processing': return { bg: 'bg-blue-100 dark:bg-blue-900/20', text: 'text-blue-800 dark:text-blue-400' }
-      case 'completed': return { bg: 'bg-green-100 dark:bg-green-900/20', text: 'text-green-800 dark:text-green-400' }
-      case 'cancelled': return { bg: 'bg-red-100 dark:bg-red-900/20', text: 'text-red-800 dark:text-red-400' }
+      case 'MENUNGGU': return { bg: 'bg-yellow-100 dark:bg-yellow-900/20', text: 'text-yellow-800 dark:text-yellow-400' }
+      case 'DIPROSES': return { bg: 'bg-blue-100 dark:bg-blue-900/20', text: 'text-blue-800 dark:text-blue-400' }
+      case 'SELESAI': return { bg: 'bg-green-100 dark:bg-green-900/20', text: 'text-green-800 dark:text-green-400' }
+      case 'DIBATALKAN': return { bg: 'bg-red-100 dark:bg-red-900/20', text: 'text-red-800 dark:text-red-400' }
       default: return { bg: 'bg-gray-100 dark:bg-gray-900/20', text: 'text-gray-800 dark:text-gray-400' }
     }
   }
@@ -87,13 +87,13 @@ export default function OrderListPage() {
     {
       header: 'Pelanggan',
       accessor: (order: Order) => (
-        <span className="text-gray-900 dark:text-white">{order.customer_name}</span>
+        <span className="text-gray-900 dark:text-white">{order.table_number}</span>
       ),
     },
     {
       header: 'Total',
       accessor: (order: Order) => (
-        <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(order.total_amount)}</span>
+        <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(order.total_price)}</span>
       ),
     },
     {
@@ -102,10 +102,10 @@ export default function OrderListPage() {
         const colors = getStatusColor(order.status)
         return (
           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colors.bg} ${colors.text}`}>
-            {order.status === 'pending' && 'Menunggu'}
-            {order.status === 'processing' && 'Diproses'}
-            {order.status === 'completed' && 'Selesai'}
-            {order.status === 'cancelled' && 'Dibatalkan'}
+            {order.status === 'MENUNGGU' && 'Menunggu'}
+            {order.status === 'DIPROSES' && 'Diproses'}
+            {order.status === 'SELESAI' && 'Selesai'}
+            {order.status === 'DIBATALKAN' && 'Dibatalkan'}
           </span>
         )
       },
@@ -142,7 +142,9 @@ export default function OrderListPage() {
           onEdit={handleUpdateStatus}
           onDelete={handleDelete}
           searchPlaceholder="Cari pelanggan atau nomor meja..."
-          searchKeys={['customer_name', 'table_number', 'status']}
+          searchKeys={['table_number', 'table_number', 'status']}
+          meta={meta}
+          onPageChange={(page) => refetch(page)}
         />
       </div>
 
@@ -151,7 +153,7 @@ export default function OrderListPage() {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select value={newStatus} onValueChange={(value: 'pending' | 'processing' | 'completed' | 'cancelled') => setNewStatus(value)}>
+            <Select value={newStatus} onValueChange={(value: 'MENUNGGU' | 'DIPROSES' | 'SELESAI' | 'DIBATALKAN') => setNewStatus(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -188,7 +190,7 @@ export default function OrderListPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus Pesanan</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus pesanan dari <span className="font-semibold text-gray-900 dark:text-white">{orderToDelete?.customer_name}</span>?
+              Apakah Anda yakin ingin menghapus pesanan dari <span className="font-semibold text-gray-900 dark:text-white">{orderToDelete?.table_number}</span>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

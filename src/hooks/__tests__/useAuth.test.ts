@@ -107,10 +107,10 @@ describe('useAuth', () => {
     })
 
     act(() => {
-      result.current.updateUser({ username: 'updated-admin' })
+      result.current.updateUser({ name: 'Updated Admin' })
     })
 
-    expect(result.current.user?.username).toBe('updated-admin')
+    expect(result.current.user?.name).toBe('Updated Admin')
     expect(result.current.user?.id).toBe(mockAdmin.id) // Other fields unchanged
   })
 })

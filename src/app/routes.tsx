@@ -12,6 +12,7 @@ const ProductListPage = lazy(() => import('@/features/product/pages/ProductListP
 const TableListPage = lazy(() => import('@/features/table/pages/TableListPage'))
 const OrderListPage = lazy(() => import('@/features/order/pages/OrderListPage'))
 const ProductionQueuePage = lazy(() => import('@/features/production/pages/ProductionQueuePage'))
+const ExportOrdersPage = lazy(() => import('@/pages/ExportOrdersPage'))
 
 // ============================================================================
 // ROUTE DEFINITIONS
@@ -49,6 +50,10 @@ export const routes: RouteObject[] = [
   {
     path: '/production',
     element: <ProductionQueuePage />,
+  },
+  {
+    path: '/export',
+    element: <ExportOrdersPage />,
   },
 
   // Catch-all 404

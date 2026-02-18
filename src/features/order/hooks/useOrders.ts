@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { orderService } from '../services/orderService'
-import { Order } from '@/types/order'
+import { Order, PaginationMeta } from '@/types'
 
 export function useOrders() {
   const [orders, setOrders] = useState<Order[]>([])
+  const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const hasFetched = useRef(false)
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page = 1) => {
     try {
       setIsLoading(true)
-      const data = await orderService.getAll()
-      setOrders(data)
+      const response = await orderService.getAll(page)
+      setOrders(response.items)
+      setMeta(response.meta)
     } catch (error) {
       console.error('Failed to fetch orders:', error)
     } finally {
@@ -19,11 +22,14 @@ export function useOrders() {
   }
 
   useEffect(() => {
+    if (hasFetched.current) return
+    hasFetched.current = true
     fetchOrders()
   }, [])
 
   return {
     orders,
+    meta,
     isLoading,
     refetch: fetchOrders,
   }

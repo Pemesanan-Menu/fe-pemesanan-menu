@@ -1,5 +1,11 @@
 import api from '@/services/api'
-import { Table } from '@/types/table'
+import { Table, PaginatedData } from '@/types'
+
+interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data: T
+}
 
 interface CreateTableRequest {
   number: number
@@ -11,26 +17,33 @@ interface UpdateTableRequest {
 }
 
 export const tableService = {
-  getAll: async () => {
-    const { data } = await api.get<{ success: boolean; data: Table[] }>('/api/tables')
+  getAll: async (page = 1, limit = 10): Promise<PaginatedData<Table>> => {
+    const { data } = await api.get<ApiResponse<PaginatedData<Table>>>('/tables', {
+      params: { page, limit }
+    })
     return data.data
   },
 
-  create: async (tableData: CreateTableRequest) => {
-    const { data } = await api.post<{ success: boolean; data: Table }>('/api/tables', tableData)
+  getById: async (id: string): Promise<Table> => {
+    const { data } = await api.get<ApiResponse<Table>>(`/tables/${id}`)
     return data.data
   },
 
-  update: async (id: string, tableData: UpdateTableRequest) => {
-    const { data } = await api.put<{ success: boolean; data: Table }>(`/api/tables/${id}`, tableData)
+  create: async (tableData: CreateTableRequest): Promise<Table> => {
+    const { data } = await api.post<ApiResponse<Table>>('/tables', tableData)
     return data.data
   },
 
-  delete: async (id: string) => {
-    await api.delete(`/api/tables/${id}`)
+  update: async (id: string, tableData: UpdateTableRequest): Promise<Table> => {
+    const { data } = await api.put<ApiResponse<Table>>(`/tables/${id}`, tableData)
+    return data.data
   },
 
-  downloadQRCode: (id: string) => {
-    return `${api.defaults.baseURL}/api/tables/${id}/qrcode`
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/tables/${id}`)
+  },
+
+  downloadQRCode: (id: string): string => {
+    return `${api.defaults.baseURL}/tables/${id}/qrcode`
   },
 }
