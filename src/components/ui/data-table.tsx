@@ -44,8 +44,8 @@ export function DataTable<T extends { id: string }>({
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  // Ensure data is always an array
-  const safeData = Array.isArray(data) ? data : []
+  // Ensure data is always an array and memoize it
+  const safeData = useMemo(() => Array.isArray(data) ? data : [], [data])
   
   // Use server-side pagination if meta is provided
   const isServerSide = !!meta && !!onPageChange

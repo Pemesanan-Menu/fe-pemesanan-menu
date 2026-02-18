@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // Menu item type definition
 type MenuItem = {
   name: string
@@ -54,13 +55,13 @@ export const MENU_GROUPS: MenuGroup[] = [
         name: 'Pesanan',
         path: '/orders',
         icon: 'clipboard',
-        roles: ['admin', 'kasir'],
+        roles: ['kasir'],
       },
       {
         name: 'Produksi',
         path: '/production',
         icon: 'beaker',
-        roles: ['admin', 'produksi'],
+        roles: ['produksi'],
       },
     ],
   },

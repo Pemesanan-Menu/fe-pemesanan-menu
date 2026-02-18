@@ -13,6 +13,7 @@ const TableListPage = lazy(() => import('@/features/table/pages/TableListPage'))
 const OrderListPage = lazy(() => import('@/features/order/pages/OrderListPage'))
 const ProductionQueuePage = lazy(() => import('@/features/production/pages/ProductionQueuePage'))
 const ExportOrdersPage = lazy(() => import('@/pages/ExportOrdersPage'))
+const CashierPage = lazy(() => import('@/features/cashier/pages/CashierPage'))
 
 // ============================================================================
 // ROUTE DEFINITIONS
@@ -45,7 +46,7 @@ export const routes: RouteObject[] = [
   },
   {
     path: '/orders',
-    element: <OrderListPage />,
+    element: <CashierPage />,
   },
   {
     path: '/production',

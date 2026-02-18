@@ -35,4 +35,14 @@ export const orderService = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/orders/${id}`)
   },
+
+  processPayment: async (id: string): Promise<Order> => {
+    const { data } = await api.patch<ApiResponse<Order>>(`/orders/${id}/pay`)
+    return data.data
+  },
+
+  cancelOrder: async (id: string): Promise<Order> => {
+    const { data } = await api.patch<ApiResponse<Order>>(`/orders/${id}/cancel`)
+    return data.data
+  },
 }
