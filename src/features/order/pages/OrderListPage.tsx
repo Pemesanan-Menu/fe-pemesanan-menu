@@ -10,7 +10,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { formatCurrency } from '@/utils/format'
 
-export default function OrderListPage() {
+export default function OrderListPage(): JSX.Element {
   const { orders, meta, isLoading, refetch } = useOrders()
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false)

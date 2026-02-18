@@ -1,5 +1,5 @@
 import api from '@/services/api'
-import { Order, CreateOrderRequest, PaginatedData } from '@/types'
+import { Order, CreateOrderRequest, PaginatedData, TrackingResponse, ReceiptResponse } from '@/types'
 
 interface ApiResponse<T> {
   success: boolean
@@ -37,13 +37,13 @@ export const orderService = {
     return data.data
   },
 
-  getTracking: async (id: string) => {
-    const { data } = await api.get<ApiResponse<any>>(`/orders/${id}/tracking`)
+  getTracking: async (id: string): Promise<TrackingResponse> => {
+    const { data } = await api.get<ApiResponse<TrackingResponse>>(`/orders/${id}/tracking`)
     return data.data
   },
 
-  getReceipt: async (id: string) => {
-    const { data } = await api.get<ApiResponse<any>>(`/orders/${id}/receipt`)
+  getReceipt: async (id: string): Promise<ReceiptResponse> => {
+    const { data } = await api.get<ApiResponse<ReceiptResponse>>(`/orders/${id}/receipt`)
     return data.data
   },
 }

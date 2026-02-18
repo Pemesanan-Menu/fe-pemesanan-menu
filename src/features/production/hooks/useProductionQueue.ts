@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { productionService } from '../services/productionService'
 import { Order } from '@/types'
 
@@ -8,7 +8,7 @@ export function useProductionQueue(page = 1, limit = 100, status?: string) {
   const [total, setTotal] = useState(0)
   const hasFetched = useRef(false)
 
-  const fetchQueue = async () => {
+  const fetchQueue = useCallback(async () => {
     try {
       setIsLoading(true)
       const data = await productionService.getQueue(page, limit, status)
@@ -19,13 +19,13 @@ export function useProductionQueue(page = 1, limit = 100, status?: string) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [page, limit, status])
 
   useEffect(() => {
     if (hasFetched.current) return
     hasFetched.current = true
     fetchQueue()
-  }, [page, limit, status])
+  }, [fetchQueue])
 
   return {
     items,

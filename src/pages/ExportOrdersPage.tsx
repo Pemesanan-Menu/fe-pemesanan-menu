@@ -11,7 +11,7 @@ import { getErrorMessage } from '@/types/error'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 
-export default function ExportOrdersPage() {
+export default function ExportOrdersPage(): JSX.Element {
   const [formatType, setFormatType] = useState<'csv' | 'pdf'>('csv')
   const [dateFrom, setDateFrom] = useState<Date>()
   const [dateTo, setDateTo] = useState<Date>()
