@@ -155,7 +155,12 @@ export default function OrderPage(): JSX.Element {
       }
       return [...prev, { product, quantity: 1, notes: '' }]
     })
-    toast.success(`${product.name} ditambahkan ke keranjang`)
+    toast.success(`${product.name} ditambahkan ke keranjang`, {
+      cancel: {
+        label: '×',
+        onClick: () => {}
+      }
+    })
   }
 
   const updateQuantity = (productId: string, delta: number): void => {

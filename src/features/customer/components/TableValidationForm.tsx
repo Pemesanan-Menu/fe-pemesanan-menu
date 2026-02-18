@@ -57,7 +57,7 @@ export function TableValidationForm({ onValidate, isValidating }: TableValidatio
             >
               {isValidating ? (
                 <>
-                  <Spinner size="sm" className="mr-2" />
+                  <Spinner size="sm" />
                   Memvalidasi...
                 </>
               ) : (

@@ -18,7 +18,7 @@ export function OrderHeader({ tableNumber, onChangeTable }: OrderHeaderProps): J
             />
             <div>
               <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Caffe Tetangga</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Meja #{tableNumber}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Meja {tableNumber}</p>
             </div>
           </div>
           <Button variant="outline" onClick={onChangeTable} size="sm">

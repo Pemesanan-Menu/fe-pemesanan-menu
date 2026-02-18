@@ -1,9 +1,9 @@
 import { Plus } from 'lucide-react'
 import { Product } from '@/types'
 import { formatCurrency } from '@/utils/format'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 interface ProductCardProps {
   product: Product
@@ -11,8 +11,10 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps): JSX.Element {
+  const isOutOfStock = !product.is_available || product.stock === 0
+  
   return (
-    <Card className={`hover:shadow-md transition-shadow ${!product.is_available ? 'opacity-60' : ''}`}>
+    <Card className={`hover:shadow-md transition-shadow ${isOutOfStock ? 'opacity-60' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0 pr-2">
@@ -23,8 +25,8 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps): JSX.Ele
               {product.category}
             </Badge>
           </div>
-          {!product.is_available && (
-            <Badge variant="destructive" className="text-xs whitespace-nowrap">
+          {isOutOfStock && (
+            <Badge className="text-xs whitespace-nowrap bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
               Habis
             </Badge>
           )}
@@ -40,10 +42,10 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps): JSX.Ele
           </span>
           <Button
             onClick={() => onAddToCart(product)}
-            disabled={!product.is_available}
+            disabled={isOutOfStock}
             size="sm"
           >
-            <Plus className="w-4 h-4 mr-1" />
+            <Plus className="w-4 h-4" />
             Tambah
           </Button>
         </div>

@@ -12,6 +12,7 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { formatCurrency, formatInputNumber, parseFormattedNumber } from '@/utils/format'
@@ -197,20 +198,21 @@ export default function ProductListPage(): JSX.Element {
             </div>
           )}
           <div className="flex gap-3 pt-4">
-            <button 
+            <Button 
               type="button" 
               onClick={() => setShowModal(false)} 
-              className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              variant="outline"
+              className="flex-1"
             >
               Batal
-            </button>
-            <button 
+            </Button>
+            <Button 
               type="submit" 
-              disabled={isSubmitting} 
-              className="flex-1 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={isSubmitting}
+              className="flex-1"
             >
               {isSubmitting ? 'Menyimpan...' : 'Simpan'}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>
