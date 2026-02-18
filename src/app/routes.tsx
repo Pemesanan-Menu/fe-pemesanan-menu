@@ -58,6 +58,11 @@ export const routes: RouteObject[] = [
     path: '/export',
     element: <ExportOrdersPage />,
   },
+  // Customer routes (public - no authentication)
+  {
+    path: '/order',
+    element: <OrderPage />,
+  },
   {
     path: '/customer/order',
     element: <OrderPage />,
@@ -68,6 +73,10 @@ export const routes: RouteObject[] = [
   },
   {
     path: '/customer/tracking/:orderId',
+    element: <OrderTrackingPage />,
+  },
+  {
+    path: '/tracking/:orderId',
     element: <OrderTrackingPage />,
   },
 
