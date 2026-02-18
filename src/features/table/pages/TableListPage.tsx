@@ -92,11 +92,8 @@ export default function TableListPage(): JSX.Element {
     {
       header: 'Nomor Meja',
       accessor: (table: Table) => (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-            {table.number}
-          </div>
-          <span className="font-medium text-gray-900 dark:text-white">Meja {table.number}</span>
+        <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+          {table.number}
         </div>
       ),
     },
