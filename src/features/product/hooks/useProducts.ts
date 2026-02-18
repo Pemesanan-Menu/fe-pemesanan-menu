@@ -2,7 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { Product, PaginationMeta } from '@/types'
 import { productService } from '../services/productService'
 
-export const useProducts = () => {
+export const useProducts = (): {
+  products: Product[]
+  meta: PaginationMeta | null
+  isLoading: boolean
+  error: string | null
+  refetch: (page?: number, limit?: number) => Promise<void>
+} => {
   const [products, setProducts] = useState<Product[]>([])
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)

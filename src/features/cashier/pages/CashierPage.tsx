@@ -10,7 +10,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Modal } from '@/components/ui/modal'
 import { formatCurrency } from '@/utils/format'
 
-export default function CashierPage() {
+export default function CashierPage(): JSX.Element {
   const { orders, meta, isLoading, refetch } = useOrders()
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)

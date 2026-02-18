@@ -34,6 +34,6 @@ export const router = createBrowserRouter(
 // ROUTER PROVIDER COMPONENT
 // ============================================================================
 
-export function AppRouter() {
+export function AppRouter(): JSX.Element {
   return <RouterProvider router={router} />
 }

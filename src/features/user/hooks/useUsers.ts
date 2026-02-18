@@ -2,7 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { User, PaginationMeta } from '@/types'
 import { userService } from '../services/userService'
 
-export const useUsers = () => {
+export const useUsers = (): {
+  users: User[]
+  meta: PaginationMeta | null
+  isLoading: boolean
+  error: string | null
+  refetch: (page?: number) => Promise<void>
+} => {
   const [users, setUsers] = useState<User[]>([])
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)

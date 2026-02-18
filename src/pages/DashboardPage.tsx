@@ -7,7 +7,7 @@ import { ICONS } from '@/config/menu'
 import { dashboardService, DashboardData } from '@/services/dashboardService'
 import { formatCurrency } from '@/utils/format'
 
-export default function DashboardPage() {
+export default function DashboardPage(): JSX.Element {
   const user = authUtils.getUser()
   const [data, setData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)

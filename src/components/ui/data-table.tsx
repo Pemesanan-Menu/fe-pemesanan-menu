@@ -39,7 +39,7 @@ export function DataTable<T extends { id: string }>({
   showNumber = true,
   meta,
   onPageChange,
-}: DataTableProps<T>) {
+}: DataTableProps<T>): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10

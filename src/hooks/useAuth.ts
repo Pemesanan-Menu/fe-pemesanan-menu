@@ -9,10 +9,24 @@ const AUTH_TOKEN_KEY = 'authToken'
 const USER_DATA_KEY = 'user'
 
 // ============================================================================
+// EXPORT TYPE
+// ============================================================================
+
+export interface UseAuthReturn {
+  user: User | null
+  isAuthenticated: boolean
+  login: (userData: User, token: string) => void
+  logout: () => void
+  getToken: () => string | null
+  hasRole: (roles: UserRole | UserRole[]) => boolean
+  updateUser: (updatedUser: Partial<User>) => void
+}
+
+// ============================================================================
 // USEAUTH HOOK
 // ============================================================================
 
-export function useAuth() {
+export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<User | null>(() => {
     // Initialize from localStorage
     const storedUser = localStorage.getItem(USER_DATA_KEY)
@@ -125,9 +139,3 @@ export function useAuth() {
     updateUser,
   }
 }
-
-// ============================================================================
-// EXPORT TYPE
-// ============================================================================
-
-export type UseAuthReturn = ReturnType<typeof useAuth>

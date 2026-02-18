@@ -11,7 +11,7 @@ import { Modal } from '@/components/ui/modal'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-export default function ProductionQueuePage() {
+export default function ProductionQueuePage(): JSX.Element {
   const { items, isLoading, refetch } = useProductionQueue()
   const [showStatusModal, setShowStatusModal] = useState(false)
   const [editingItem, setEditingItem] = useState<Order | null>(null)

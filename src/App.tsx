@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 
-function App() {
+function App(): JSX.Element {
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(false)
 

@@ -3,7 +3,7 @@ import { useTheme } from "@/hooks/useTheme"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
-const Toaster = ({ ...props }: ToasterProps) => {
+const Toaster = ({ ...props }: ToasterProps): JSX.Element => {
   const { theme } = useTheme()
 
   return (

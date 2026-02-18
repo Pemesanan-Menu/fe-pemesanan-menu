@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { formatCurrency, formatInputNumber, parseFormattedNumber } from '@/utils/format'
 
-export default function ProductListPage() {
+export default function ProductListPage(): JSX.Element {
   const { products, meta, isLoading, refetch } = useProducts()
   const [showModal, setShowModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)

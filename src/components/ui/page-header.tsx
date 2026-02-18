@@ -9,7 +9,7 @@ interface PageHeaderProps {
   }
 }
 
-export function PageHeader({ title, description, action }: PageHeaderProps) {
+export function PageHeader({ title, description, action }: PageHeaderProps): JSX.Element {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>

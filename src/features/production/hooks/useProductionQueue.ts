@@ -2,7 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { productionService } from '../services/productionService'
 import { Order } from '@/types'
 
-export function useProductionQueue(page = 1, limit = 100, status?: string) {
+export function useProductionQueue(page = 1, limit = 100, status?: string): {
+  items: Order[]
+  isLoading: boolean
+  total: number
+  refetch: () => Promise<void>
+} {
   const [items, setItems] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [total, setTotal] = useState(0)

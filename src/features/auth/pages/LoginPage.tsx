@@ -8,7 +8,7 @@ import { APP_CONFIG } from '@/config/constants'
 import { useTheme } from '@/hooks/useTheme'
 import { getErrorMessage } from '@/types/error'
 
-export default function LoginPage() {
+export default function LoginPage(): JSX.Element {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
   const [email, setEmail] = useState('')

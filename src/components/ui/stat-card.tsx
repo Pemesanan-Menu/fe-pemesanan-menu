@@ -8,7 +8,7 @@ interface StatCardProps {
   color: string
 }
 
-export function StatCard({ title, value, icon, color }: StatCardProps) {
+export function StatCard({ title, value, icon, color }: StatCardProps): JSX.Element {
   return (
     <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 dark:bg-gray-800">
       <CardContent className="p-6">

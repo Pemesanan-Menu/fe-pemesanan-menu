@@ -2,7 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { Table, PaginationMeta } from '@/types'
 import { tableService } from '../services/tableService'
 
-export const useTables = () => {
+export const useTables = (): {
+  tables: Table[]
+  meta: PaginationMeta | null
+  isLoading: boolean
+  error: string | null
+  refetch: (page?: number) => Promise<void>
+} => {
   const [tables, setTables] = useState<Table[]>([])
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)

@@ -1,5 +1,5 @@
 import { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import { render, RenderOptions, RenderResult } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 
 // ============================================================================
@@ -17,7 +17,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 export function renderWithProviders(
   ui: ReactElement,
   options?: CustomRenderOptions
-) {
+): RenderResult {
   const { initialRoute = '/', ...renderOptions } = options || {}
 
   // Set initial route

@@ -2,7 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { orderService } from '../services/orderService'
 import { Order, PaginationMeta } from '@/types'
 
-export function useOrders() {
+export function useOrders(): {
+  orders: Order[]
+  meta: PaginationMeta | null
+  isLoading: boolean
+  refetch: (page?: number) => Promise<void>
+} {
   const [orders, setOrders] = useState<Order[]>([])
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)
