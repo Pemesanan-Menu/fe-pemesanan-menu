@@ -1,64 +1,62 @@
 import { useState } from 'react'
 import { useOrders } from '../hooks/useOrders'
 import { orderService } from '../services/orderService'
-import { Order, OrderStatus } from '@/types'
+import { Order } from '@/types'
 import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { DataTable } from '@/components/ui/data-table'
 import { PageHeader } from '@/components/ui/page-header'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
-import { Modal } from '@/components/ui/modal'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatCurrency } from '@/utils/format'
 
 export default function OrderListPage() {
   const { orders, meta, isLoading, refetch } = useOrders()
-  const [showStatusModal, setShowStatusModal] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [editingOrder, setEditingOrder] = useState<Order | null>(null)
-  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null)
-  const [newStatus, setNewStatus] = useState<OrderStatus>('MENUNGGU')
+  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false)
+  const [orderToCancel, setOrderToCancel] = useState<Order | null>(null)
+  const [orderToPay, setOrderToPay] = useState<Order | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleUpdateStatus = (order: Order) => {
-    setEditingOrder(order)
-    setNewStatus(order.status)
-    setShowStatusModal(true)
+  const handleCancel = (order: Order) => {
+    setOrderToCancel(order)
+    setShowCancelDialog(true)
   }
 
-  const handleSubmitStatus = async () => {
-    if (!editingOrder) return
+  const confirmCancel = async () => {
+    if (!orderToCancel) return
     setIsSubmitting(true)
     try {
-      await orderService.updateStatus(editingOrder.id, { status: newStatus })
-      toast.success('Status pesanan berhasil diupdate')
-      setShowStatusModal(false)
+      await orderService.cancelOrder(orderToCancel.id)
+      toast.success('Pesanan berhasil dibatalkan')
       refetch()
     } catch (err) {
       toast.error(getErrorMessage(err))
     } finally {
       setIsSubmitting(false)
+      setShowCancelDialog(false)
+      setOrderToCancel(null)
     }
   }
 
-  const handleDelete = (order: Order) => {
-    setOrderToDelete(order)
-    setShowDeleteDialog(true)
+  const handlePayment = (order: Order) => {
+    setOrderToPay(order)
+    setShowPaymentDialog(true)
   }
 
-  const confirmDelete = async () => {
-    if (!orderToDelete) return
+  const confirmPayment = async () => {
+    if (!orderToPay) return
+    setIsSubmitting(true)
     try {
-      await orderService.delete(orderToDelete.id)
-      toast.success('Pesanan berhasil dihapus')
+      await orderService.processPayment(orderToPay.id)
+      toast.success('Pembayaran berhasil diproses')
       refetch()
     } catch (err) {
       toast.error(getErrorMessage(err))
     } finally {
-      setShowDeleteDialog(false)
-      setOrderToDelete(null)
+      setIsSubmitting(false)
+      setShowPaymentDialog(false)
+      setOrderToPay(null)
     }
   }
 
@@ -77,7 +75,7 @@ export default function OrderListPage() {
       header: 'Meja',
       accessor: (order: Order) => (
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
             {order.table_number}
           </div>
           <span className="font-medium text-gray-900 dark:text-white">Meja {order.table_number}</span>
@@ -124,6 +122,29 @@ export default function OrderListPage() {
         </span>
       ),
     },
+    {
+      header: 'Aksi',
+      accessor: (order: Order) => (
+        <div className="flex gap-2">
+          {order.status === 'SELESAI' && (
+            <button
+              onClick={() => handlePayment(order)}
+              className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Bayar
+            </button>
+          )}
+          {order.status === 'MENUNGGU' && (
+            <button
+              onClick={() => handleCancel(order)}
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Batalkan
+            </button>
+          )}
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -139,64 +160,53 @@ export default function OrderListPage() {
           data={orders}
           isLoading={isLoading}
           emptyMessage="Belum ada pesanan"
-          onEdit={handleUpdateStatus}
-          onDelete={handleDelete}
-          searchPlaceholder="Cari pelanggan atau nomor meja..."
-          searchKeys={['table_number', 'table_number', 'status']}
+          searchPlaceholder="Cari nomor meja atau status..."
+          searchKeys={['table_number', 'status']}
           meta={meta}
           onPageChange={(page) => refetch(page)}
         />
       </div>
 
-      {/* Update Status Modal */}
-      <Modal isOpen={showStatusModal} onClose={() => setShowStatusModal(false)} title="Update Status Pesanan">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <Select value={newStatus} onValueChange={(value: 'MENUNGGU' | 'DIPROSES' | 'SELESAI' | 'DIBATALKAN') => setNewStatus(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Menunggu</SelectItem>
-                <SelectItem value="processing">Diproses</SelectItem>
-                <SelectItem value="completed">Selesai</SelectItem>
-                <SelectItem value="cancelled">Dibatalkan</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={() => setShowStatusModal(false)}
-              className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Batal
-            </button>
-            <button
-              onClick={handleSubmitStatus}
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isSubmitting ? 'Menyimpan...' : 'Simpan'}
-            </button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      {/* Payment Confirmation Dialog */}
+      <AlertDialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Pesanan</AlertDialogTitle>
+            <AlertDialogTitle>Konfirmasi Pembayaran</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus pesanan dari <span className="font-semibold text-gray-900 dark:text-white">{orderToDelete?.table_number}</span>?
+              Proses pembayaran untuk pesanan Meja #{orderToPay?.table_number}?<br/>
+              Total: <span className="font-bold text-gray-900 dark:text-white">{orderToPay && formatCurrency(orderToPay.total_price)}</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700 text-white">
-              Hapus
+            <AlertDialogCancel disabled={isSubmitting}>Batal</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmPayment} 
+              disabled={isSubmitting}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {isSubmitting ? 'Memproses...' : 'Konfirmasi Bayar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Batalkan Pesanan</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin membatalkan pesanan dari Meja #{orderToCancel?.table_number}?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmitting}>Batal</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmCancel} 
+              disabled={isSubmitting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isSubmitting ? 'Membatalkan...' : 'Ya, Batalkan'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

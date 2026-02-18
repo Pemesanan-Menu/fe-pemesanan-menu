@@ -1,5 +1,5 @@
 import api from '@/services/api'
-import { Order, CreateOrderRequest, UpdateStatusRequest, PaginatedData } from '@/types'
+import { Order, CreateOrderRequest, PaginatedData } from '@/types'
 
 interface ApiResponse<T> {
   success: boolean
@@ -27,15 +27,6 @@ export const orderService = {
     return data.data
   },
 
-  updateStatus: async (id: string, payload: UpdateStatusRequest): Promise<Order> => {
-    const { data } = await api.patch<ApiResponse<Order>>(`/orders/${id}/status`, payload)
-    return data.data
-  },
-
-  delete: async (id: string): Promise<void> => {
-    await api.delete(`/orders/${id}`)
-  },
-
   processPayment: async (id: string): Promise<Order> => {
     const { data } = await api.patch<ApiResponse<Order>>(`/orders/${id}/pay`)
     return data.data
@@ -43,6 +34,16 @@ export const orderService = {
 
   cancelOrder: async (id: string): Promise<Order> => {
     const { data } = await api.patch<ApiResponse<Order>>(`/orders/${id}/cancel`)
+    return data.data
+  },
+
+  getTracking: async (id: string) => {
+    const { data } = await api.get<ApiResponse<any>>(`/orders/${id}/tracking`)
+    return data.data
+  },
+
+  getReceipt: async (id: string) => {
+    const { data } = await api.get<ApiResponse<any>>(`/orders/${id}/receipt`)
     return data.data
   },
 }

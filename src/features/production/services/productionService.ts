@@ -8,11 +8,12 @@ interface ApiResponse<T> {
 }
 
 export const productionService = {
-  getQueue: async (): Promise<Order[]> => {
-    const { data } = await api.get<ApiResponse<PaginatedData<Order>>>('/production/queue', {
-      params: { limit: 100 }
-    })
-    return data.data.items || []
+  getQueue: async (page = 1, limit = 10, status?: string): Promise<PaginatedData<Order>> => {
+    const params: Record<string, string> = { page: page.toString(), limit: limit.toString() }
+    if (status) params.status = status
+
+    const { data } = await api.get<ApiResponse<PaginatedData<Order>>>('/production/queue', { params })
+    return data.data
   },
 
   updateStatus: async (id: string, payload: UpdateStatusRequest): Promise<ProductionLog> => {

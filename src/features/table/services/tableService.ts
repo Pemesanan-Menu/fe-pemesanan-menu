@@ -43,7 +43,23 @@ export const tableService = {
     await api.delete(`/tables/${id}`)
   },
 
-  downloadQRCode: (id: string): string => {
+  downloadQRCode: async (id: string, tableNumber: number): Promise<void> => {
+    const { data } = await api.get(`/tables/${id}/qrcode`, {
+      responseType: 'blob',
+    })
+    
+    // Create blob URL and trigger download
+    const url = window.URL.createObjectURL(data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `qrcode-meja-${tableNumber}.png`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+  },
+
+  getQRCodeUrl: (id: string): string => {
     return `${api.defaults.baseURL}/tables/${id}/qrcode`
   },
 }

@@ -74,7 +74,7 @@ export default function CashierPage() {
       header: 'Meja',
       accessor: (order: Order) => (
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
             {order.table_number}
           </div>
           <span className="font-medium text-gray-900 dark:text-white">Meja {order.table_number}</span>

@@ -55,7 +55,7 @@ export const MENU_GROUPS: MenuGroup[] = [
         name: 'Pesanan',
         path: '/orders',
         icon: 'clipboard',
-        roles: ['kasir'],
+        roles: ['kasir', 'cashier'],
       },
       {
         name: 'Produksi',

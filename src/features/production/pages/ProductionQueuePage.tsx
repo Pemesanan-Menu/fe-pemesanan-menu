@@ -62,7 +62,7 @@ export default function ProductionQueuePage() {
       header: 'Meja',
       accessor: (item: Order) => (
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
             {item.table_number}
           </div>
           <span className="text-gray-900 dark:text-white">Meja {item.table_number}</span>

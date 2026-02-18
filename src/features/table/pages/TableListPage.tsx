@@ -22,6 +22,7 @@ export default function TableListPage() {
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null)
   const [formData, setFormData] = useState({ number: '', is_active: true })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [downloadingQRId, setDownloadingQRId] = useState<string | null>(null)
 
   const handleCreate = () => {
     setEditingTable(null)
@@ -75,9 +76,16 @@ export default function TableListPage() {
     }
   }
 
-  const handleDownloadQR = (table: Table) => {
-    const url = tableService.downloadQRCode(table.id)
-    window.open(url, '_blank')
+  const handleDownloadQR = async (table: Table) => {
+    setDownloadingQRId(table.id)
+    try {
+      await tableService.downloadQRCode(table.id, table.number)
+      toast.success(`QR Code Meja ${table.number} berhasil diunduh`)
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    } finally {
+      setDownloadingQRId(null)
+    }
   }
 
   const columns = [
@@ -85,7 +93,7 @@ export default function TableListPage() {
       header: 'Nomor Meja',
       accessor: (table: Table) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-white font-bold">
+          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
             {table.number}
           </div>
           <span className="font-medium text-gray-900 dark:text-white">Meja {table.number}</span>
@@ -94,17 +102,33 @@ export default function TableListPage() {
     },
     {
       header: 'QR Code',
-      accessor: (table: Table) => (
-        <button
-          onClick={() => handleDownloadQR(table)}
-          className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          Download
-        </button>
-      ),
+      accessor: (table: Table) => {
+        const isDownloading = downloadingQRId === table.id
+        return (
+          <button
+            onClick={() => handleDownloadQR(table)}
+            disabled={isDownloading}
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isDownloading ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Downloading...
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download
+              </>
+            )}
+          </button>
+        )
+      },
     },
     {
       header: 'Status',
