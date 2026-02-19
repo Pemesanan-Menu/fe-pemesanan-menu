@@ -28,9 +28,7 @@ export default function LoginPage(): JSX.Element {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    e.stopPropagation()
 
-    // Validasi client-side
     if (!email.trim()) {
       toast.error('Email harus diisi')
       return

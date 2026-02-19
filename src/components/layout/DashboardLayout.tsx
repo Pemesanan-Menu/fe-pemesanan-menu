@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -111,25 +111,33 @@ export default function DashboardLayout({ children }: DashboardLayoutProps): JSX
           ))}
         </nav>
 
-        {/* User Info & Logout */}
+        {/* User Info */}
         <div className={`absolute bottom-0 left-0 right-0 p-4 border-t ${UI.BORDER.DEFAULT.split(' ')[1]} ${UI.BACKGROUND.PRIMARY}`}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className={`w-10 h-10 ${UI.COLORS.PRIMARY.GRADIENT} ${UI.ROUNDED.FULL} flex items-center justify-center text-white ${UI.FONT.WEIGHT.SEMIBOLD}`}>
-              {user?.name?.charAt(0) || 'U'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={`${UI.FONT.SIZE.SM} ${UI.FONT.WEIGHT.MEDIUM} ${UI.TEXT_COLOR.PRIMARY} truncate`}>{user?.name}</p>
-              <p className={`${UI.FONT.SIZE.XS} ${UI.TEXT_COLOR.SECONDARY}`}>{user?.role}</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => setShowLogoutDialog(true)}
-            variant="outline"
-            className={`w-full justify-start gap-2 ${UI.COLORS.DANGER.TEXT} ${UI.COLORS.DANGER.BORDER} hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-700 dark:hover:text-gray-100 hover:border-red-400 dark:hover:border-gray-600`}
-          >
-            {ICONS.logout}
-            Keluar
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-3 w-full p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all cursor-pointer active:scale-95">
+                <div className={`w-10 h-10 ${UI.COLORS.PRIMARY.GRADIENT} ${UI.ROUNDED.FULL} flex items-center justify-center text-white ${UI.FONT.WEIGHT.SEMIBOLD} shadow-md`}>
+                  {user?.name?.charAt(0) || 'U'}
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className={`${UI.FONT.SIZE.SM} ${UI.FONT.WEIGHT.MEDIUM} ${UI.TEXT_COLOR.PRIMARY} truncate`}>{user?.name}</p>
+                  <p className={`${UI.FONT.SIZE.XS} ${UI.TEXT_COLOR.SECONDARY}`}>{user?.role}</p>
+                </div>
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-3" align="end" side="top">
+              <button
+                onClick={() => setShowLogoutDialog(true)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 transition-all active:scale-95"
+              >
+                {ICONS.logout}
+                <span className="font-medium">Keluar</span>
+              </button>
+            </PopoverContent>
+          </Popover>
         </div>
       </aside>
 
