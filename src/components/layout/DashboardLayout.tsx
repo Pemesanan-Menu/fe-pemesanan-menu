@@ -40,11 +40,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps): JSX
 
   const filteredMenuGroups = MENU_GROUPS.map(group => ({
     ...group,
-    items: group.items.filter(item => {
-      const hasAccess = authUtils.hasRole(item.roles)
-      console.log(`Menu: ${item.name}, Roles: ${item.roles}, User Role: ${user?.role}, Has Access: ${hasAccess}`)
-      return hasAccess
-    })
+    items: group.items.filter(item => authUtils.hasRole(item.roles))
   })).filter(group => group.items.length > 0)
 
   const handleLogout = () => {

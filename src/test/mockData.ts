@@ -85,7 +85,6 @@ export const mockOrderItems: OrderItem[] = [
     product_id: 'product-1',
     product_name: 'Nasi Goreng',
     quantity: 2,
-    price: 25000,
     subtotal: 50000,
   },
   {
@@ -94,19 +93,16 @@ export const mockOrderItems: OrderItem[] = [
     product_id: 'product-3',
     product_name: 'Es Teh Manis',
     quantity: 1,
-    price: 5000,
     subtotal: 5000,
   },
 ]
 
 export const mockOrder: Order = {
   id: 'order-1',
-  order_number: 'ORD-001',
   table_id: 'table-1',
   table_number: 5,
   items: mockOrderItems,
   status: 'MENUNGGU',
-  total_amount: 55000,
   total_price: 55000,
   created_at: '2024-01-01T10:00:00.000Z',
   updated_at: '2024-01-01T10:00:00.000Z',
@@ -116,7 +112,6 @@ export const mockOrders: Order[] = [
   mockOrder,
   {
     id: 'order-2',
-    order_number: 'ORD-002',
     table_id: 'table-2',
     table_number: 3,
     items: [{
@@ -124,7 +119,6 @@ export const mockOrders: Order[] = [
       order_id: 'order-2',
     }],
     status: 'DIPROSES',
-    total_amount: 50000,
     total_price: 50000,
     estimated_minutes: 15,
     created_at: '2024-01-01T10:05:00.000Z',
@@ -132,7 +126,6 @@ export const mockOrders: Order[] = [
   },
   {
     id: 'order-3',
-    order_number: 'ORD-003',
     table_id: 'table-3',
     table_number: 7,
     items: [{
@@ -140,7 +133,6 @@ export const mockOrders: Order[] = [
       order_id: 'order-3',
     }],
     status: 'SELESAI',
-    total_amount: 5000,
     total_price: 5000,
     created_at: '2024-01-01T09:30:00.000Z',
     updated_at: '2024-01-01T09:45:00.000Z',

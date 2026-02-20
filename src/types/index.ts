@@ -44,36 +44,29 @@ export interface Product {
 // ORDER TYPES
 // ============================================================================
 
-export type OrderStatus = 'MENUNGGU' | 'DIPROSES' | 'SIAP' | 'SELESAI' | 'DIBATALKAN'
-export type PaymentStatus = 'PENDING' | 'PAID'
+export type OrderStatus = 'MENUNGGU' | 'DIPROSES' | 'SELESAI' | 'DIBAYAR' | 'DIBATALKAN'
 
 export interface OrderItem {
   id: string
   order_id: string
   product_id: string
-  product?: Product // Nested product data (public endpoints)
-  product_name?: string // For backward compatibility
+  product_name: string
   quantity: number
-  price: number
   subtotal: number
   notes?: string
 }
 
 export interface Order {
   id: string
-  order_id?: string // For production queue
-  order_number: string
+  order_id?: string
+  short_id?: string
   table_id: string
-  table?: Table // Nested table data
-  table_number?: number // For backward compatibility
+  table_number: number
   status: OrderStatus
-  payment_status?: PaymentStatus
-  total_amount: number
-  total_price?: number // For backward compatibility
+  total_price: number
   estimated_minutes?: number
   notes?: string
   items: OrderItem[]
-  item_count?: number // For production queue
   paid_at?: string
   cancelled_by?: string
   created_at: string
@@ -95,14 +88,8 @@ export interface TrackingResponse {
   status: OrderStatus
   estimated_minutes?: number
   remaining_minutes?: number
-  items: Array<{
-    id: string
-    order_id: string
-    product_id: string
-    product_name: string
-    quantity: number
-    subtotal: number
-  }>
+  notes?: string
+  items: OrderItem[]
   created_at: string
 }
 

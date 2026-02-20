@@ -73,24 +73,32 @@ export default function CashierPage(): JSX.Element {
     {
       header: 'Meja',
       accessor: (order: Order) => (
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-            {order.table_number}
-          </div>
-          <span className="font-medium text-gray-900 dark:text-white">Meja {order.table_number}</span>
+        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+          {order.table_number}
         </div>
       ),
     },
     {
-      header: 'Item',
+      header: 'Item Pesanan',
       accessor: (order: Order) => (
-        <span className="text-gray-900 dark:text-white">{order.items?.length || 0} item</span>
+        <div className="space-y-1">
+          {order.items?.slice(0, 2).map((item, idx) => (
+            <div key={idx} className="text-sm text-gray-900 dark:text-white">
+              {item.quantity}x {item.product_name}
+            </div>
+          ))}
+          {order.items && order.items.length > 2 && (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              +{order.items.length - 2} item lainnya
+            </div>
+          )}
+        </div>
       ),
     },
     {
       header: 'Total',
       accessor: (order: Order) => (
-        <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(order.total_amount || order.total_price || 0)}</span>
+        <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(order.total_price)}</span>
       ),
     },
     {
@@ -174,7 +182,7 @@ export default function CashierPage(): JSX.Element {
               </div>
               <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
                 <span className="text-gray-900 dark:text-white font-semibold">Total Bayar</span>
-                <span className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(selectedOrder.total_amount || selectedOrder.total_price || 0)}</span>
+                <span className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(selectedOrder.total_price)}</span>
               </div>
             </div>
 

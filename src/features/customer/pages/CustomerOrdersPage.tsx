@@ -26,8 +26,8 @@ export default function CustomerOrdersPage(): JSX.Element {
     const variants: Record<string, string> = {
       'MENUNGGU': 'bg-yellow-100 text-yellow-800',
       'DIPROSES': 'bg-blue-100 text-blue-800',
-      'SIAP': 'bg-purple-100 text-purple-800',
       'SELESAI': 'bg-green-100 text-green-800',
+      'DIBAYAR': 'bg-purple-100 text-purple-800',
       'DIBATALKAN': 'bg-red-100 text-red-800',
     }
     return (

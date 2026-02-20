@@ -2,7 +2,6 @@ import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'ax
 
 // Get API base URL from environment
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
-const IS_DEBUG = import.meta.env.VITE_ENABLE_DEBUG_MODE === 'true'
 
 // Create axios instance
 export const api: AxiosInstance = axios.create({
@@ -27,22 +26,9 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
-    // Debug logging in development
-    if (IS_DEBUG) {
-      console.log('🚀 API Request:', {
-        method: config.method?.toUpperCase(),
-        url: config.url,
-        params: config.params,
-        data: config.data,
-      })
-    }
-
     return config
   },
   (error) => {
-    if (IS_DEBUG) {
-      console.error('❌ Request Error:', error)
-    }
     return Promise.reject(error)
   }
 )
@@ -53,27 +39,9 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    // Debug logging in development
-    if (IS_DEBUG) {
-      console.log('✅ API Response:', {
-        status: response.status,
-        url: response.config.url,
-        data: response.data,
-      })
-    }
-
     return response
   },
   (error: AxiosError) => {
-    // Debug logging in development
-    if (IS_DEBUG) {
-      console.error('❌ Response Error:', {
-        status: error.response?.status,
-        url: error.config?.url,
-        message: error.message,
-        data: error.response?.data,
-      })
-    }
 
     // Handle specific error cases
     if (error.response) {

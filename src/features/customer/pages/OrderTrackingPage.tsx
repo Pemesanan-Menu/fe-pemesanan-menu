@@ -36,9 +36,94 @@ export default function OrderTrackingPage(): JSX.Element {
       navigate('/customer/order')
       return
     }
+    
+    // Initial fetch
     fetchTracking()
-    const interval = setInterval(fetchTracking, 10000) // Refresh every 10 seconds
-    return () => clearInterval(interval)
+    
+    // Setup SSE connection for real-time updates
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
+    // Ensure base URL doesn't end with slash
+    const baseUrl = apiBaseUrl.endsWith('/') ? apiBaseUrl.slice(0, -1) : apiBaseUrl
+    const sseUrl = `${baseUrl}/sse/orders/${orderId}`
+    
+    let abortController = new AbortController()
+    let reconnectAttempts = 0
+    const maxReconnectAttempts = 5
+    let reconnectTimer: ReturnType<typeof setTimeout>
+    
+    const connectSSE = async () => {
+      try {
+        const response = await fetch(sseUrl, {
+          headers: {
+            'Accept': 'text/event-stream',
+          },
+          signal: abortController.signal,
+        })
+
+        if (!response.ok) {
+          console.error('SSE Tracking connection failed:', response.status)
+          scheduleReconnect()
+          return
+        }
+
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+
+        if (!reader) return
+
+        reconnectAttempts = 0
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) {
+            scheduleReconnect()
+            break
+          }
+
+          const chunk = decoder.decode(value)
+          const lines = chunk.split('\n')
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                JSON.parse(line.slice(6))
+                fetchTracking()
+              } catch (e) {
+                // Ignore parse errors for heartbeat messages
+              }
+            }
+          }
+        }
+      } catch (error: unknown) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('❌ SSE Tracking error:', error)
+          scheduleReconnect()
+        }
+      }
+    }
+
+    const scheduleReconnect = () => {
+      if (reconnectAttempts >= maxReconnectAttempts) {
+        console.warn('⚠️ Max reconnection attempts reached, stopping SSE Tracking')
+        return
+      }
+      
+      const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000)
+      reconnectAttempts++
+      
+      reconnectTimer = setTimeout(() => {
+        abortController = new AbortController()
+        connectSSE()
+      }, delay)
+    }
+
+    connectSSE()
+
+    return () => {
+      clearTimeout(reconnectTimer)
+      abortController.abort()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId])
 
@@ -92,8 +177,9 @@ export default function OrderTrackingPage(): JSX.Element {
       case 'DIPROSES':
         return <img src="/cook.gif" alt="Diproses" className={imgClass} />
       case 'SELESAI':
-      case 'SIAP':
         return <img src="/pay.gif" alt="Selesai" className={imgClass} />
+      case 'DIBAYAR':
+        return <img src="/pay.gif" alt="Dibayar" className={imgClass} />
       case 'DIBATALKAN':
         return <XCircle className={`w-12 h-12 text-red-600 mx-auto transition-all duration-500 ease-out ${
           isTransitioning ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
@@ -109,10 +195,10 @@ export default function OrderTrackingPage(): JSX.Element {
         return 'Pesanan Anda Sedang Dalam Antrian'
       case 'DIPROSES':
         return 'Pesanan Anda Sedang Dimasak, Harap Tunggu'
-      case 'SIAP':
-        return 'Pesanan siap, Silahkan Lakukan Pembayaran di Kasir'
       case 'SELESAI':
-        return 'Pesanan telah selesai'
+        return 'Pesanan Selesais, Silahkan Lakukan Pembayaran di Kasir.'
+      case 'DIBAYAR':
+        return 'Pesanan telah dibayar, Terima kasih!'
       case 'DIBATALKAN':
         return 'Pesanan dibatalkan'
       default:

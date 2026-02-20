@@ -91,7 +91,7 @@ export default function OrderListPage(): JSX.Element {
     {
       header: 'Total',
       accessor: (order: Order) => (
-        <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(order.total_amount || order.total_price || 0)}</span>
+        <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(order.total_price)}</span>
       ),
     },
     {
@@ -174,7 +174,7 @@ export default function OrderListPage(): JSX.Element {
             <AlertDialogTitle>Konfirmasi Pembayaran</AlertDialogTitle>
             <AlertDialogDescription>
               Proses pembayaran untuk pesanan Meja #{orderToPay?.table_number}?<br/>
-              Total: <span className="font-bold text-gray-900 dark:text-white">{orderToPay && formatCurrency(orderToPay.total_amount || orderToPay.total_price || 0)}</span>
+              Total: <span className="font-bold text-gray-900 dark:text-white">{orderToPay && formatCurrency(orderToPay.total_price)}</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
