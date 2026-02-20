@@ -23,7 +23,7 @@ export function TableValidationForm({ onValidate, isValidating }: TableValidatio
         <CardContent className="p-8">
           <div className="text-center mb-8">
             <img 
-              src="/logo.webp" 
+              src="/img/logo.webp" 
               alt="UMKM Kuliner Logo" 
               className="w-20 h-20 mx-auto mb-6 rounded-lg"
             />

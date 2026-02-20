@@ -130,6 +130,36 @@ export default function ProductListPage(): JSX.Element {
       ),
     },
     {
+      header: 'Stok',
+      accessor: (product: Product) => {
+        const stock = product.stock || 0
+        const isLowStock = stock <= 5 && stock > 0
+        const isOutOfStock = stock === 0
+        
+        return (
+          <div className="flex items-center gap-2">
+            <span className={`text-sm font-semibold ${
+              isOutOfStock ? 'text-red-600 dark:text-red-400' : 
+              isLowStock ? 'text-yellow-600 dark:text-yellow-400' : 
+              'text-gray-900 dark:text-white'
+            }`}>
+              {stock}
+            </span>
+            {isOutOfStock && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                Habis
+              </span>
+            )}
+            {isLowStock && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                Rendah
+              </span>
+            )}
+          </div>
+        )
+      },
+    },
+    {
       header: 'Status',
       accessor: (product: Product) => <StatusBadge status={product.is_available} trueLabel="Tersedia" falseLabel="Habis" />,
     },

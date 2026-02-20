@@ -12,7 +12,7 @@ export function OrderHeader({ tableNumber, onChangeTable }: OrderHeaderProps): J
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
-              src="/logo.webp" 
+              src="/img/logo.webp" 
               alt="UMKM Kuliner Logo" 
               className="w-12 h-12 rounded-lg object-cover"
             />

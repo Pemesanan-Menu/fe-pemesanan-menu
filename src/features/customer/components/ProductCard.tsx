@@ -11,7 +11,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps): JSX.Element {
-  const isOutOfStock = !product.is_available || product.stock === 0
+  const stock = product.stock || 0
+  const isOutOfStock = !product.is_available || stock === 0
+  const isLowStock = stock > 0 && stock <= 5
   
   return (
     <Card className={`hover:shadow-md transition-shadow ${isOutOfStock ? 'opacity-60' : ''}`}>
@@ -30,6 +32,11 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps): JSX.Ele
               Habis
             </Badge>
           )}
+          {!isOutOfStock && isLowStock && (
+            <Badge className="text-xs whitespace-nowrap bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+              Stok: {stock}
+            </Badge>
+          )}
         </div>
         
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
@@ -44,6 +51,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps): JSX.Ele
             onClick={() => onAddToCart(product)}
             disabled={isOutOfStock}
             size="sm"
+            title={isOutOfStock ? 'Produk habis' : 'Tambah ke keranjang'}
           >
             <Plus className="w-4 h-4" />
             Tambah
