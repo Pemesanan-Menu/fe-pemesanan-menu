@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useProducts } from '../hooks/useProducts'
 import { productService } from '../services/productService'
 import { Product } from '@/types'
@@ -18,13 +18,33 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { formatCurrency, formatInputNumber, parseFormattedNumber } from '@/utils/format'
 
 export default function ProductListPage(): JSX.Element {
-  const { products, meta, isLoading, refetch } = useProducts()
+  const [categoryFilter, setCategoryFilter] = useState<string>('')
+  const [categories, setCategories] = useState<string[]>([])
+  const { products, meta, isLoading, refetch } = useProducts(categoryFilter)
   const [showModal, setShowModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [productToDelete, setProductToDelete] = useState<Product | null>(null)
   const [formData, setFormData] = useState({ name: '', description: '', price: '', category: 'Makanan', stock: 1, is_available: true })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Fetch categories from backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories`)
+        const data = await response.json()
+        if (data.success) {
+          setCategories(data.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+        // Fallback to default categories
+        setCategories(['Makanan', 'Minuman', 'Snack', 'Dessert'])
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const handleCreate = () => {
     setEditingProduct(null)
@@ -124,15 +144,43 @@ export default function ProductListPage(): JSX.Element {
           action={{ label: '+ Tambah Produk', onClick: handleCreate }}
         />
 
+        {/* Search & Filter */}
+        <div className="flex gap-3 items-center">
+          <div className="flex-1 max-w-md">
+            <input
+              type="text"
+              placeholder="Cari nama produk..."
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              onChange={() => {
+                // Implement search if needed
+              }}
+            />
+          </div>
+          <div className="flex gap-2 items-center">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Kategori:</label>
+            <Select value={categoryFilter || 'all'} onValueChange={(val) => setCategoryFilter(val === 'all' ? '' : val)}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Semua" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua</SelectItem>
+                {categories.map(cat => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         <DataTable
+          key={categoryFilter}
           columns={columns}
           data={products}
           isLoading={isLoading}
           emptyMessage="Belum ada produk"
           onEdit={handleEdit}
           onDelete={handleDelete}
-          searchPlaceholder="Cari nama produk..."
-          searchKeys={['name', 'category']}
+          searchable={false}
           meta={meta}
           onPageChange={(page) => refetch(page)}
         />

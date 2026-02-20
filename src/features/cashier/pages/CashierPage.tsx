@@ -11,7 +11,9 @@ import { Modal } from '@/components/ui/modal'
 import { formatCurrency } from '@/utils/format'
 
 export default function CashierPage(): JSX.Element {
-  const { orders, meta, isLoading, refetch } = useOrders()
+  const [activeTab, setActiveTab] = useState<'active' | 'paid'>('active')
+  const statusFilter = activeTab === 'active' ? undefined : 'DIBAYAR'
+  const { orders, meta, isLoading, refetch } = useOrders(statusFilter)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -28,11 +30,112 @@ export default function CashierPage(): JSX.Element {
       await orderService.processPayment(selectedOrder.id)
       toast.success('Pembayaran berhasil diproses')
       setShowPaymentModal(false)
+      
+      // Auto-print receipt
+      printReceipt(selectedOrder.id)
+      
       refetch()
     } catch (err) {
       toast.error(getErrorMessage(err))
     } finally {
       setIsProcessing(false)
+    }
+  }
+
+  const printReceipt = async (orderId: string) => {
+    try {
+      const receipt = await orderService.getReceipt(orderId)
+      
+      // Create print content
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Struk Pembayaran</title>
+          <style>
+            @media print {
+              @page { margin: 0; size: 80mm auto; }
+              body { margin: 0; }
+            }
+            body { 
+              font-family: 'Courier New', monospace; 
+              width: 280px; 
+              margin: 10px auto; 
+              padding: 10px;
+              font-size: 12px;
+            }
+            h2 { text-align: center; margin: 10px 0; font-size: 16px; }
+            .divider { border-top: 1px dashed #000; margin: 10px 0; }
+            .row { display: flex; justify-content: space-between; margin: 5px 0; }
+            .item { margin: 5px 0; }
+            .total { font-weight: bold; font-size: 14px; margin-top: 10px; }
+            .center { text-align: center; }
+            .small { font-size: 10px; }
+          </style>
+        </head>
+        <body>
+          <h2>STRUK PEMBAYARAN</h2>
+          <div class="center small">Caffe Tetangga</div>
+          <div class="divider"></div>
+          <div class="row">
+            <span>Order ID:</span>
+            <span>${receipt.order_id.slice(0, 8).toUpperCase()}</span>
+          </div>
+          <div class="row">
+            <span>Meja:</span>
+            <span>${receipt.table_number}</span>
+          </div>
+          <div class="row">
+            <span>Tanggal:</span>
+            <span>${new Date(receipt.paid_at || receipt.ordered_at).toLocaleString('id-ID', { 
+              day: '2-digit', 
+              month: '2-digit', 
+              year: 'numeric',
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })}</span>
+          </div>
+          <div class="divider"></div>
+          ${receipt.items.map(item => `
+            <div class="item">
+              <div class="row">
+                <span>${item.quantity}x ${item.product_name}</span>
+                <span>${formatCurrency(item.subtotal)}</span>
+              </div>
+              ${item.notes ? `<div class="small" style="margin-left: 20px;">Note: ${item.notes}</div>` : ''}
+            </div>
+          `).join('')}
+          <div class="divider"></div>
+          <div class="row total">
+            <span>TOTAL:</span>
+            <span>${formatCurrency(receipt.total_price)}</span>
+          </div>
+          <div class="divider"></div>
+          <div class="center small">Terima kasih atas kunjungan Anda!</div>
+        </body>
+        </html>
+      `
+      
+      // Create hidden iframe for printing
+      const iframe = document.createElement('iframe')
+      iframe.style.display = 'none'
+      document.body.appendChild(iframe)
+      
+      const iframeDoc = iframe.contentWindow?.document
+      if (iframeDoc) {
+        iframeDoc.open()
+        iframeDoc.write(printContent)
+        iframeDoc.close()
+        
+        // Wait for content to load then print
+        iframe.contentWindow?.focus()
+        setTimeout(() => {
+          iframe.contentWindow?.print()
+          setTimeout(() => document.body.removeChild(iframe), 1000)
+        }, 250)
+      }
+    } catch (err) {
+      toast.error('Gagal mencetak struk: ' + getErrorMessage(err))
     }
   }
 
@@ -69,7 +172,8 @@ export default function CashierPage(): JSX.Element {
     }
   }
 
-  const columns = [
+  // Base columns (tanpa aksi)
+  const baseColumns = [
     {
       header: 'Meja',
       accessor: (order: Order) => (
@@ -122,30 +226,35 @@ export default function CashierPage(): JSX.Element {
         </span>
       ),
     },
-    {
-      header: 'Aksi',
-      accessor: (order: Order) => (
-        <div className="flex gap-2">
-          {order.status === 'SELESAI' && (
-            <button
-              onClick={() => handlePayment(order)}
-              className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              Bayar
-            </button>
-          )}
-          {order.status === 'MENUNGGU' && (
-            <button
-              onClick={() => handleCancel(order)}
-              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              Batal
-            </button>
-          )}
-        </div>
-      ),
-    },
   ]
+
+  // Columns dengan aksi untuk pesanan aktif
+  const activeColumns = [...baseColumns, {
+    header: 'Aksi',
+    accessor: (order: Order) => (
+      <div className="flex gap-2">
+        {order.status === 'SELESAI' && (
+          <button
+            onClick={() => handlePayment(order)}
+            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            Bayar
+          </button>
+        )}
+        {order.status === 'MENUNGGU' && (
+          <button
+            onClick={() => handleCancel(order)}
+            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            Batal
+          </button>
+        )}
+      </div>
+    ),
+  }]
+
+  // Pilih columns berdasarkan tab
+  const columns = activeTab === 'active' ? activeColumns : baseColumns
 
   return (
     <DashboardLayout>
@@ -155,11 +264,36 @@ export default function CashierPage(): JSX.Element {
           description="Kelola pembayaran pesanan pelanggan"
         />
 
+        {/* Tabs */}
+        <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setActiveTab('active')}
+            className={`px-4 py-2 font-medium transition-colors ${
+              activeTab === 'active'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            Pesanan Aktif
+          </button>
+          <button
+            onClick={() => setActiveTab('paid')}
+            className={`px-4 py-2 font-medium transition-colors ${
+              activeTab === 'paid'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            Riwayat Pembayaran
+          </button>
+        </div>
+
         <DataTable
+          key={activeTab}
           columns={columns}
           data={orders}
           isLoading={isLoading}
-          emptyMessage="Belum ada pesanan"
+          emptyMessage={activeTab === 'active' ? 'Belum ada pesanan aktif' : 'Belum ada riwayat pembayaran'}
           searchPlaceholder="Cari nomor meja..."
           searchKeys={['table_number', 'status']}
           meta={meta}

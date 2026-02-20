@@ -21,7 +21,7 @@ export const MENU_GROUPS: MenuGroup[] = [
         name: 'Dashboard',
         path: '/dashboard',
         icon: 'home',
-        roles: ['admin', 'cashier', 'production'],
+        roles: ['admin'],
       },
     ],
   },

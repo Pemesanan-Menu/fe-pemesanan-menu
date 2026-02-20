@@ -1,8 +1,8 @@
-import { useState, useEffect} from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { orderService } from '../services/orderService'
 import { Order, PaginationMeta } from '@/types'
 
-export function useOrders(): {
+export function useOrders(status?: string): {
   orders: Order[]
   meta: PaginationMeta | null
   isLoading: boolean
@@ -12,10 +12,10 @@ export function useOrders(): {
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const fetchOrders = async (page = 1) => {
+  const fetchOrders = useCallback(async (page = 1) => {
     try {
       setIsLoading(true)
-      const response = await orderService.getAll(page)
+      const response = await orderService.getAll(page, 10, undefined, status)
       setOrders(response.items)
       setMeta(response.meta)
     } catch (error) {
@@ -23,7 +23,7 @@ export function useOrders(): {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [status])
 
   useEffect(() => {
     // Initial fetch
@@ -117,7 +117,7 @@ export function useOrders(): {
       clearTimeout(reconnectTimer)
       abortController.abort()
     }
-  }, [])
+  }, [status, fetchOrders])
 
   return {
     orders,

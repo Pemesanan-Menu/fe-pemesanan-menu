@@ -25,10 +25,12 @@ interface UpdateProductRequest {
 }
 
 export const productService = {
-  getAll: async (page = 1, limit = 10): Promise<{ items: Product[], meta: PaginationMeta }> => {
-    const { data } = await api.get<ApiResponse<PaginatedData<Product>>>('/products', {
-      params: { page, limit }
-    })
+  getAll: async (page = 1, limit = 10, search?: string, category?: string): Promise<{ items: Product[], meta: PaginationMeta }> => {
+    const params: Record<string, string | number> = { page, limit }
+    if (search) params.search = search
+    if (category) params.category = category
+    
+    const { data } = await api.get<ApiResponse<PaginatedData<Product>>>('/products', { params })
     return { items: data.data.items || [], meta: data.data.meta }
   },
 

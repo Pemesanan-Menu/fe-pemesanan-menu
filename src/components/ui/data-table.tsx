@@ -1,4 +1,4 @@
-import { ReactNode, useState, useMemo } from 'react'
+import { ReactNode, useState, useMemo, useEffect } from 'react'
 import { UI } from '@/config/constants'
 import { PaginationMeta } from '@/types'
 
@@ -49,6 +49,14 @@ export function DataTable<T extends { id: string }>({
   
   // Use server-side pagination if meta is provided
   const isServerSide = !!meta && !!onPageChange
+
+  // Reset to page 1 when total changes (new data/filter)
+  useEffect(() => {
+    if (meta && meta.total !== undefined) {
+      setCurrentPage(1)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meta?.total])
 
   // Filter data based on search
   const filteredData = useMemo(() => {

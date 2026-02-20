@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Product, PaginationMeta } from '@/types'
 import { productService } from '../services/productService'
 
-export const useProducts = (): {
+export const useProducts = (category?: string): {
   products: Product[]
   meta: PaginationMeta | null
   isLoading: boolean
@@ -13,13 +13,12 @@ export const useProducts = (): {
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const hasFetched = useRef(false)
 
-  const fetchProducts = async (page = 1, limit = 10) => {
+  const fetchProducts = useCallback(async (page = 1, limit = 10) => {
     try {
       setIsLoading(true)
       setError(null)
-      const data = await productService.getAll(page, limit)
+      const data = await productService.getAll(page, limit, undefined, category)
       setProducts(data.items)
       setMeta(data.meta)
     } catch (err) {
@@ -28,13 +27,11 @@ export const useProducts = (): {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [category])
 
   useEffect(() => {
-    if (hasFetched.current) return
-    hasFetched.current = true
     fetchProducts()
-  }, [])
+  }, [fetchProducts])
 
   return { products, meta, isLoading, error, refetch: fetchProducts }
 }

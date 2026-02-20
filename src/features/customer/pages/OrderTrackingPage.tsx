@@ -22,7 +22,7 @@ export default function OrderTrackingPage(): JSX.Element {
   // Preload all GIF images once
   useEffect(() => {
     if (!imagesPreloadedRef.current) {
-      const imagesToPreload = ['/wait.gif', '/cook.gif', '/pay.gif']
+      const imagesToPreload = ['/gif/wait.gif', '/gif/cook.gif', '/gif/Done.gif', '/gif/pay.gif', '/gif/Cancel.gif']
       imagesToPreload.forEach((src) => {
         const img = new Image()
         img.src = src
@@ -173,19 +173,17 @@ export default function OrderTrackingPage(): JSX.Element {
     
     switch (status) {
       case 'MENUNGGU':
-        return <img src="/wait.gif" alt="Menunggu" className={imgClass} />
+        return <img src="/gif/wait.gif" alt="Menunggu" className={imgClass} />
       case 'DIPROSES':
-        return <img src="/cook.gif" alt="Diproses" className={imgClass} />
+        return <img src="/gif/cook.gif" alt="Diproses" className={imgClass} />
       case 'SELESAI':
-        return <img src="/pay.gif" alt="Selesai" className={imgClass} />
+        return <img src="/gif/pay.gif" alt="Selesai" className={imgClass} />
       case 'DIBAYAR':
-        return <img src="/pay.gif" alt="Dibayar" className={imgClass} />
+        return <img src="/gif/Done.gif" alt="Dibayar" className={imgClass} />
       case 'DIBATALKAN':
-        return <XCircle className={`w-12 h-12 text-red-600 mx-auto transition-all duration-500 ease-out ${
-          isTransitioning ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
-        }`} />
+        return <img src="/gif/Cancel.gif" alt="Dibatalkan" className={imgClass} />
       default:
-        return <img src="/wait.gif" alt="Menunggu" className={imgClass} />
+        return <img src="/gif/wait.gif" alt="Menunggu" className={imgClass} />
     }
   }
 
