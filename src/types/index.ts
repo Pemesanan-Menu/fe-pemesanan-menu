@@ -61,6 +61,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string
+  order_id?: string // For production queue
   order_number: string
   table_id: string
   table?: Table // Nested table data
@@ -72,6 +73,7 @@ export interface Order {
   estimated_minutes?: number
   notes?: string
   items: OrderItem[]
+  item_count?: number // For production queue
   paid_at?: string
   cancelled_by?: string
   created_at: string
@@ -91,6 +93,8 @@ export interface CreateOrderRequest {
 export interface TrackingResponse {
   order_id: string
   status: OrderStatus
+  estimated_minutes?: number
+  remaining_minutes?: number
   items: Array<{
     id: string
     order_id: string

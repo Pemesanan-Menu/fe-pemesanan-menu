@@ -80,15 +80,20 @@ api.interceptors.response.use(
       const status = error.response.status
 
       switch (status) {
-        case 401:
-          // Unauthorized - clear token only if not on login page
-          if (window.location.pathname !== '/login') {
+        case 401: {
+          // Unauthorized - clear token only if not on login page or login endpoint
+          const isLoginEndpoint = error.config?.url?.includes('/auth/login')
+          const isLoginPage = window.location.pathname === '/login'
+          
+          // Skip handling if it's a login request failure or already on login page
+          if (!isLoginEndpoint && !isLoginPage) {
             localStorage.removeItem('authToken')
             localStorage.removeItem('user')
             window.location.href = '/login'
           }
-          // If on login page, let the component handle the error
+          // If login endpoint or on login page, let the component handle the error
           break
+        }
 
         case 403:
           // Forbidden - user doesn't have permission

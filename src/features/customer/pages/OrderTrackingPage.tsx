@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { ArrowLeft, Clock, CheckCircle2, XCircle } from 'lucide-react'
+import { ArrowLeft, XCircle } from 'lucide-react'
 import { customerService } from '../services/customerService'
 import { TrackingResponse } from '@/types'
 import { getErrorMessage } from '@/types/error'
@@ -15,6 +15,21 @@ export default function OrderTrackingPage(): JSX.Element {
   const navigate = useNavigate()
   const [tracking, setTracking] = useState<TrackingResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const previousStatusRef = useRef<string | null>(null)
+  const imagesPreloadedRef = useRef(false)
+
+  // Preload all GIF images once
+  useEffect(() => {
+    if (!imagesPreloadedRef.current) {
+      const imagesToPreload = ['/wait.gif', '/cook.gif', '/pay.gif']
+      imagesToPreload.forEach((src) => {
+        const img = new Image()
+        img.src = src
+      })
+      imagesPreloadedRef.current = true
+    }
+  }, [])
 
   useEffect(() => {
     if (!orderId) {
@@ -31,7 +46,33 @@ export default function OrderTrackingPage(): JSX.Element {
     if (!orderId) return
     try {
       const data = await customerService.trackOrder(orderId)
-      setTracking(data)
+      
+      // Check if status has actually changed
+      const statusChanged = previousStatusRef.current !== null && 
+                           previousStatusRef.current !== data.status
+
+      if (statusChanged) {
+        // Trigger smooth transition only on status change
+        setIsTransitioning(true)
+        
+        // Fade out
+        await new Promise(resolve => setTimeout(resolve, 300))
+        
+        // Update tracking data
+        setTracking(data)
+        previousStatusRef.current = data.status
+        
+        // Fade in
+        await new Promise(resolve => setTimeout(resolve, 50))
+        setIsTransitioning(false)
+      } else {
+        // No status change, just update data silently
+        setTracking(data)
+        if (previousStatusRef.current === null) {
+          previousStatusRef.current = data.status
+        }
+      }
+      
       setIsLoading(false)
     } catch (error) {
       toast.error(getErrorMessage(error))
@@ -39,40 +80,37 @@ export default function OrderTrackingPage(): JSX.Element {
     }
   }
 
-  const getStatusBadge = (status: string): JSX.Element => {
-    const variants: Record<string, string> = {
-      'MENUNGGU': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-      'DIPROSES': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-      'SIAP': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-      'SELESAI': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-      'DIBATALKAN': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-    }
-    return (
-      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${variants[status] || variants['MENUNGGU']}`}>
-        {status}
-      </span>
-    )
-  }
 
   const getStatusIcon = (status: string): JSX.Element => {
+    const imgClass = `w-32 h-32 mx-auto transition-all duration-500 ease-out ${
+      isTransitioning ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
+    }`
+    
     switch (status) {
+      case 'MENUNGGU':
+        return <img src="/wait.gif" alt="Menunggu" className={imgClass} />
+      case 'DIPROSES':
+        return <img src="/cook.gif" alt="Diproses" className={imgClass} />
       case 'SELESAI':
-        return <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
+      case 'SIAP':
+        return <img src="/pay.gif" alt="Selesai" className={imgClass} />
       case 'DIBATALKAN':
-        return <XCircle className="w-12 h-12 text-red-600 mx-auto" />
+        return <XCircle className={`w-12 h-12 text-red-600 mx-auto transition-all duration-500 ease-out ${
+          isTransitioning ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
+        }`} />
       default:
-        return <Clock className="w-12 h-12 text-blue-600 animate-pulse mx-auto" />
+        return <img src="/wait.gif" alt="Menunggu" className={imgClass} />
     }
   }
 
   const getStatusMessage = (status: string): string => {
     switch (status) {
       case 'MENUNGGU':
-        return 'Menunggu konfirmasi kasir'
+        return 'Pesanan Anda Sedang Dalam Antrian'
       case 'DIPROSES':
-        return 'Sedang diproses di dapur'
+        return 'Pesanan Anda Sedang Dimasak, Harap Tunggu'
       case 'SIAP':
-        return 'Pesanan siap disajikan'
+        return 'Pesanan siap, Silahkan Lakukan Pembayaran di Kasir'
       case 'SELESAI':
         return 'Pesanan telah selesai'
       case 'DIBATALKAN':
@@ -132,11 +170,21 @@ export default function OrderTrackingPage(): JSX.Element {
         {/* Status Card */}
         <Card className="mb-6">
           <CardContent className="p-8 text-center">
-            {getStatusIcon(tracking?.status || 'MENUNGGU')}
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-4 mb-2">
+            <div className="relative">
+              {getStatusIcon(tracking?.status || 'MENUNGGU')}
+            </div>
+            <h2 className={`text-2xl font-bold text-gray-900 dark:text-white mt-4 mb-2 transition-all duration-500 ease-out ${
+              isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+            }`}>
               {getStatusMessage(tracking?.status || 'MENUNGGU')}
             </h2>
-            {getStatusBadge(tracking?.status || 'MENUNGGU')}
+            {tracking?.status === 'DIPROSES' && tracking?.remaining_minutes && tracking.remaining_minutes > 0 && (
+              <p className={`text-sm text-gray-600 dark:text-gray-400 mt-2 transition-all duration-500 ease-out ${
+                isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+              }`}>
+                Siap dalam ~{tracking.remaining_minutes} menit
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -198,10 +246,6 @@ export default function OrderTrackingPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Auto-refresh Notice */}
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-          Status akan diperbarui otomatis setiap 10 detik
-        </p>
       </div>
     </div>
   )

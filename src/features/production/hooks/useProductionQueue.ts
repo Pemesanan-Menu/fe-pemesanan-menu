@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { productionService } from '../services/productionService'
 import { Order } from '@/types'
 
-export function useProductionQueue(page = 1, limit = 100, status?: string): {
+export function useProductionQueue(page = 1, limit = 100, status?: string, autoRefresh = true, refreshInterval = 5000): {
   items: Order[]
   isLoading: boolean
   total: number
@@ -31,6 +31,17 @@ export function useProductionQueue(page = 1, limit = 100, status?: string): {
     hasFetched.current = true
     fetchQueue()
   }, [fetchQueue])
+
+  // Auto-refresh mechanism
+  useEffect(() => {
+    if (!autoRefresh) return
+
+    const interval = setInterval(() => {
+      fetchQueue()
+    }, refreshInterval)
+
+    return () => clearInterval(interval)
+  }, [autoRefresh, refreshInterval, fetchQueue])
 
   return {
     items,

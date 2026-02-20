@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useProductionQueue } from '../hooks/useProductionQueue'
 import { productionService } from '../services/productionService'
-import { Order, OrderStatus } from '@/types'
+import { Order, OrderStatus, UpdateStatusRequest } from '@/types'
 import { getErrorMessage } from '@/types/error'
 import { toast } from 'sonner'
+import { RefreshCw } from 'lucide-react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { DataTable } from '@/components/ui/data-table'
 import { PageHeader } from '@/components/ui/page-header'
@@ -12,15 +13,38 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function ProductionQueuePage(): JSX.Element {
-  const { items, isLoading, refetch } = useProductionQueue()
+  const [autoRefresh, setAutoRefresh] = useState(true)
+  const { items, isLoading, refetch } = useProductionQueue(1, 100, undefined, autoRefresh, 10000)
   const [showStatusModal, setShowStatusModal] = useState(false)
   const [editingItem, setEditingItem] = useState<Order | null>(null)
   const [newStatus, setNewStatus] = useState<OrderStatus>('MENUNGGU')
+  const [estimatedMinutes, setEstimatedMinutes] = useState<number>(15)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+
+  // Update timestamp when items change
+  useEffect(() => {
+    if (items.length > 0) {
+      setLastUpdate(new Date())
+    }
+  }, [items])
+
+  // Sort: MENUNGGU first, then DIPROSES, then SELESAI
+  const sortedItems = [...items].sort((a, b) => {
+    const statusOrder: Record<OrderStatus, number> = { 
+      MENUNGGU: 0, 
+      DIPROSES: 1, 
+      SELESAI: 2,
+      SIAP: 3,
+      DIBATALKAN: 4
+    }
+    return statusOrder[a.status] - statusOrder[b.status]
+  })
 
   const handleUpdateStatus = (item: Order) => {
     setEditingItem(item)
     setNewStatus(item.status)
+    setEstimatedMinutes(item.estimated_minutes || 15)
     setShowStatusModal(true)
   }
 
@@ -28,7 +52,12 @@ export default function ProductionQueuePage(): JSX.Element {
     if (!editingItem) return
     setIsSubmitting(true)
     try {
-      await productionService.updateStatus(editingItem.id, { status: newStatus })
+      const orderId = editingItem.order_id || editingItem.id
+      const payload: UpdateStatusRequest = { status: newStatus }
+      if (newStatus === 'DIPROSES') {
+        payload.estimated_minutes = estimatedMinutes
+      }
+      await productionService.updateStatus(orderId, payload)
       toast.success('Status produksi berhasil diupdate')
       setShowStatusModal(false)
       refetch()
@@ -51,12 +80,24 @@ export default function ProductionQueuePage(): JSX.Element {
   const columns = [
     {
       header: 'Order',
-      accessor: (item: Order) => (
-        <div>
-          <p className="font-medium text-gray-900 dark:text-white">Order #{item.id.slice(0, 8)}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{item.items.length} items</p>
-        </div>
-      ),
+      accessor: (item: Order) => {
+        const orderId = item.order_id || item.id
+        const displayId = orderId ? orderId.slice(0, 8) : 'N/A'
+        return (
+          <div className="flex items-center gap-2">
+            {item.status === 'MENUNGGU' && (
+              <span className="flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+              </span>
+            )}
+            <div>
+              <p className="font-medium text-gray-900 dark:text-white">Order #{displayId}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{item.item_count || item.items?.length || 0} items</p>
+            </div>
+          </div>
+        )
+      },
     },
     {
       header: 'Meja',
@@ -80,11 +121,18 @@ export default function ProductionQueuePage(): JSX.Element {
       accessor: (item: Order) => {
         const colors = getStatusColor(item.status)
         return (
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colors.bg} ${colors.text}`}>
-            {item.status === 'MENUNGGU' && 'Menunggu'}
-            {item.status === 'DIPROSES' && 'Sedang Diproses'}
-            {item.status === 'SELESAI' && 'Selesai'}
-          </span>
+          <div>
+            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colors.bg} ${colors.text}`}>
+              {item.status === 'MENUNGGU' && 'Menunggu'}
+              {item.status === 'DIPROSES' && 'Sedang Diproses'}
+              {item.status === 'SELESAI' && 'Selesai'}
+            </span>
+            {item.status === 'DIPROSES' && item.estimated_minutes && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                ⏱️ ~{item.estimated_minutes} menit
+              </p>
+            )}
+          </div>
         )
       },
     },
@@ -106,14 +154,43 @@ export default function ProductionQueuePage(): JSX.Element {
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
-        <PageHeader
-          title="Antrian Produksi"
-          description="Monitor dan update status produksi pesanan"
-        />
+        <div className="flex items-center justify-between">
+          <PageHeader
+            title="Antrian Produksi"
+            description="Monitor dan update status produksi pesanan"
+          />
+          
+          <div className="flex items-center gap-3">
+            {/* Auto-refresh indicator */}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800">
+              <RefreshCw className={`w-4 h-4 text-gray-600 dark:text-gray-400 ${autoRefresh ? 'animate-spin' : ''}`} style={{ animationDuration: '3s' }} />
+              <div className="text-xs">
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {autoRefresh ? 'Auto-refresh: ON' : 'Auto-refresh: OFF'}
+                </p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {lastUpdate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </p>
+              </div>
+            </div>
+
+            {/* Toggle button */}
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                autoRefresh
+                  ? 'bg-purple-600 text-white hover:bg-purple-700'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              {autoRefresh ? 'Pause' : 'Resume'}
+            </button>
+          </div>
+        </div>
 
         <DataTable
           columns={columns}
-          data={items}
+          data={sortedItems}
           isLoading={isLoading}
           emptyMessage="Tidak ada antrian produksi"
           onEdit={handleUpdateStatus}
@@ -132,12 +209,39 @@ export default function ProductionQueuePage(): JSX.Element {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pending">Menunggu</SelectItem>
-                <SelectItem value="in_progress">Sedang Diproses</SelectItem>
-                <SelectItem value="completed">Selesai</SelectItem>
+                {editingItem?.status === 'MENUNGGU' && (
+                  <>
+                    <SelectItem value="MENUNGGU">Menunggu</SelectItem>
+                    <SelectItem value="DIPROSES">Sedang Diproses</SelectItem>
+                  </>
+                )}
+                {editingItem?.status === 'DIPROSES' && (
+                  <>
+                    <SelectItem value="DIPROSES">Sedang Diproses</SelectItem>
+                    <SelectItem value="SELESAI">Selesai</SelectItem>
+                  </>
+                )}
+                {editingItem?.status === 'SELESAI' && (
+                  <SelectItem value="SELESAI">Selesai</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
+
+          {newStatus === 'DIPROSES' && (
+            <div className="space-y-2">
+              <Label>Estimasi Waktu (menit)</Label>
+              <input
+                type="number"
+                value={estimatedMinutes}
+                onChange={(e) => setEstimatedMinutes(Number(e.target.value))}
+                min="1"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Contoh: 15"
+              />
+            </div>
+          )}
+
           <div className="flex gap-3 pt-4">
             <button
               type="button"
