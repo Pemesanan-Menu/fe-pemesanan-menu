@@ -24,6 +24,7 @@ export default function OrderPage(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isFromQR, setIsFromQR] = useState(false)
   const [showCart, setShowCart] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Semua')
@@ -42,11 +43,9 @@ export default function OrderPage(): JSX.Element {
     const tableParam = searchParams.get('table')
     if (tableParam && !hasValidatedTable.current) {
       hasValidatedTable.current = true
+      setIsFromQR(true)
       setTableNumber(tableParam)
-      // Auto-validate after a brief delay to show the UI
-      setTimeout(() => {
-        validateTableFromParam(tableParam)
-      }, 500)
+      validateTableFromParam(tableParam)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -226,6 +225,13 @@ export default function OrderPage(): JSX.Element {
   }
 
   if (!isTableValidated) {
+    if (isFromQR) {
+      return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+          <Spinner size="lg" />
+        </div>
+      )
+    }
     return (
       <TableValidationForm
         onValidate={validateTable}
@@ -244,7 +250,7 @@ export default function OrderPage(): JSX.Element {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20">
-      <OrderHeader tableNumber={tableNumber} onChangeTable={changeTable} />
+      <OrderHeader tableNumber={tableNumber} onChangeTable={changeTable} canChangeTable={!isFromQR} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <SearchFilter

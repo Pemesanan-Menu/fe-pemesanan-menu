@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button'
 interface OrderHeaderProps {
   tableNumber: string
   onChangeTable: () => void
+  canChangeTable?: boolean
 }
 
-export function OrderHeader({ tableNumber, onChangeTable }: OrderHeaderProps): JSX.Element {
+export function OrderHeader({ tableNumber, onChangeTable, canChangeTable = true }: OrderHeaderProps): JSX.Element {
   return (
     <div className="bg-white dark:bg-gray-900 border-b sticky top-0 z-40 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -21,9 +22,11 @@ export function OrderHeader({ tableNumber, onChangeTable }: OrderHeaderProps): J
               <p className="text-xs text-gray-500 dark:text-gray-400">Meja {tableNumber}</p>
             </div>
           </div>
-          <Button variant="outline" onClick={onChangeTable} size="sm">
-            Ganti Meja
-          </Button>
+          {canChangeTable && (
+            <Button variant="outline" onClick={onChangeTable} size="sm">
+              Ganti Meja
+            </Button>
+          )}
         </div>
       </div>
     </div>
