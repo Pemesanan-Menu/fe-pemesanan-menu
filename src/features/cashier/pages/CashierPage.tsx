@@ -19,6 +19,17 @@ export default function CashierPage(): JSX.Element {
   const [isProcessing, setIsProcessing] = useState(false)
   const [paymentAmount, setPaymentAmount] = useState('')
 
+  const handlePaymentInput = (value: string) => {
+    // Remove non-digit characters
+    const numericValue = value.replace(/\D/g, '')
+    setPaymentAmount(numericValue)
+  }
+
+  const formatPaymentDisplay = (value: string) => {
+    if (!value) return ''
+    return Number(value).toLocaleString('id-ID')
+  }
+
   const handlePayment = (order: Order) => {
     setSelectedOrder(order)
     setPaymentAmount('')
@@ -328,12 +339,11 @@ export default function CashierPage(): JSX.Element {
                 Jumlah Uang Diterima
               </label>
               <input
-                type="number"
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(e.target.value)}
+                type="text"
+                value={formatPaymentDisplay(paymentAmount)}
+                onChange={(e) => handlePaymentInput(e.target.value)}
                 placeholder="Masukkan nominal pembayaran"
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                min="0"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
 
