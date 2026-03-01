@@ -194,9 +194,9 @@ export default function OrderTrackingPage(): JSX.Element {
       case 'DIPROSES':
         return 'Pesanan Anda Sedang Dimasak, Harap Tunggu'
       case 'SELESAI':
-        return 'Pesanan Selesais, Silahkan Lakukan Pembayaran di Kasir.'
+        return 'Pesanan Selesai, Silahkan Lakukan Pembayaran di Kasir.'
       case 'DIBAYAR':
-        return 'Pesanan telah dibayar, Terima kasih!'
+        return 'Pesanan telah dibayarkan, Selamat Menikmati!'
       case 'DIBATALKAN':
         return 'Pesanan dibatalkan'
       default:
