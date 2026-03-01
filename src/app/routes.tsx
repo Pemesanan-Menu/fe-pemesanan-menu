@@ -51,6 +51,10 @@ export const routes: RouteObject[] = [
     element: <CashierPage />,
   },
   {
+    path: '/cashier',
+    element: <CashierPage />,
+  },
+  {
     path: '/production',
     element: <ProductionQueuePage />,
   },

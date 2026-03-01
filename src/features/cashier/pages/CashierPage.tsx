@@ -17,9 +17,11 @@ export default function CashierPage(): JSX.Element {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [paymentAmount, setPaymentAmount] = useState('')
 
   const handlePayment = (order: Order) => {
     setSelectedOrder(order)
+    setPaymentAmount('')
     setShowPaymentModal(true)
   }
 
@@ -320,6 +322,42 @@ export default function CashierPage(): JSX.Element {
               </div>
             </div>
 
+            {/* Payment Amount Input */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Jumlah Uang Diterima
+              </label>
+              <input
+                type="number"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+                placeholder="Masukkan nominal pembayaran"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                min="0"
+              />
+            </div>
+
+            {/* Change Calculation */}
+            {paymentAmount && Number(paymentAmount) >= selectedOrder.total_price && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-900 dark:text-blue-300 font-semibold">Kembalian</span>
+                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    {formatCurrency(Number(paymentAmount) - selectedOrder.total_price)}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Warning if insufficient */}
+            {paymentAmount && Number(paymentAmount) < selectedOrder.total_price && (
+              <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  Uang tidak cukup. Kurang {formatCurrency(selectedOrder.total_price - Number(paymentAmount))}
+                </p>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button
                 type="button"
@@ -330,7 +368,7 @@ export default function CashierPage(): JSX.Element {
               </button>
               <button
                 onClick={confirmPayment}
-                disabled={isProcessing}
+                disabled={isProcessing || !paymentAmount || Number(paymentAmount) < selectedOrder.total_price}
                 className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isProcessing ? 'Memproses...' : 'Konfirmasi Bayar'}
