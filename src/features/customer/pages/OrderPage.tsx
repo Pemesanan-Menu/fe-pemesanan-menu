@@ -5,12 +5,14 @@ import { customerService } from '../services/customerService'
 import { Product, CartItem } from '@/types'
 import { getErrorMessage } from '@/types/error'
 import { Spinner } from '@/components/ui/spinner'
+import { Modal } from '@/components/ui/modal'
 import { TableValidationForm } from '../components/TableValidationForm'
 import { OrderHeader } from '../components/OrderHeader'
 import { SearchFilter } from '../components/SearchFilter'
 import { ProductGrid } from '../components/ProductGrid'
 import { CartButton } from '../components/CartButton'
 import { CartSidebar } from '../components/CartSidebar'
+import { formatCurrency } from '@/utils/format'
 
 export default function OrderPage(): JSX.Element {
   const navigate = useNavigate()
@@ -28,6 +30,7 @@ export default function OrderPage(): JSX.Element {
   const [showCart, setShowCart] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Semua')
+  const [showCheckoutConfirm, setShowCheckoutConfirm] = useState(false)
   
   const hasFetchedCategories = useRef(false)
   const hasValidatedTable = useRef(false)
@@ -91,6 +94,18 @@ export default function OrderPage(): JSX.Element {
   }
 
   const validateTableFromParam = async (tableParam: string): Promise<void> => {
+    // Check if it's a UUID (table_id) or a number (table_number)
+    const isUUID = tableParam.includes('-') || tableParam.length > 10
+    
+    if (isUUID) {
+      // Direct table_id from localStorage
+      setTableId(tableParam)
+      setIsTableValidated(true)
+      setIsValidating(false)
+      return
+    }
+
+    // It's a table number, validate it
     const number = parseInt(tableParam)
     if (isNaN(number) || number <= 0) {
       return
@@ -100,7 +115,10 @@ export default function OrderPage(): JSX.Element {
     try {
       const table = await customerService.validateTable(number)
       setTableId(table.id)
+      setTableNumber(table.number.toString())
       setIsTableValidated(true)
+      // Save to localStorage for "Pesan Lagi" feature
+      localStorage.setItem('lastTableId', table.id)
       toast.success(`Selamat datang di Meja ${table.number}!`)
     } catch (error) {
       toast.error(getErrorMessage(error))
@@ -125,6 +143,10 @@ export default function OrderPage(): JSX.Element {
     try {
       const table = await customerService.validateTable(number)
       setTableId(table.id)
+      setTableNumber(table.number.toString())
+      setIsTableValidated(true)
+      // Save to localStorage for "Pesan Lagi" feature
+      localStorage.setItem('lastTableId', table.id)
       setTableNumber(tableNumberInput)
       setIsTableValidated(true)
       toast.success(`Meja ${table.number} berhasil divalidasi!`)
@@ -202,6 +224,11 @@ export default function OrderPage(): JSX.Element {
       return
     }
 
+    // Show confirmation dialog
+    setShowCheckoutConfirm(true)
+  }
+
+  const confirmCheckout = async (): Promise<void> => {
     setIsSubmitting(true)
     try {
       const order = await customerService.createOrder({
@@ -215,6 +242,7 @@ export default function OrderPage(): JSX.Element {
       toast.success('Pesanan berhasil! Silakan tunggu konfirmasi')
       setCart([])
       setShowCart(false)
+      setShowCheckoutConfirm(false)
       // Navigate to tracking page with order ID
       navigate(`/customer/tracking/${order.id}`)
     } catch (error) {
@@ -286,6 +314,76 @@ export default function OrderPage(): JSX.Element {
         getTotalItems={getTotalItems}
         getTotalPrice={getTotalPrice}
       />
+
+      {/* Checkout Confirmation Modal */}
+      <Modal 
+        isOpen={showCheckoutConfirm} 
+        onClose={() => setShowCheckoutConfirm(false)} 
+        title="Konfirmasi Pesanan"
+      >
+        <div className="space-y-4">
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">Meja</span>
+              <span className="font-semibold text-gray-900 dark:text-white">Meja {tableNumber}</span>
+            </div>
+          </div>
+
+          {/* Order Items List */}
+          <div className="max-h-64 overflow-y-auto space-y-2">
+            {cart.map((item) => (
+              <div key={item.product.id} className="flex justify-between items-start p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {item.product.name}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {item.quantity}x {formatCurrency(item.product.price)}
+                  </p>
+                  {item.notes && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Note: {item.notes}
+                    </p>
+                  )}
+                </div>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  {formatCurrency(item.product.price * item.quantity)}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Total */}
+          <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-900 dark:text-white font-semibold">Total Pembayaran</span>
+              <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(getTotalPrice())}</span>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Pastikan pesanan Anda sudah benar. Setelah checkout, pesanan akan langsung diproses oleh dapur.
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setShowCheckoutConfirm(false)}
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+            >
+              Batal
+            </button>
+            <button
+              onClick={confirmCheckout}
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isSubmitting ? 'Memproses...' : 'Konfirmasi Checkout'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

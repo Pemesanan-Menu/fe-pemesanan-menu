@@ -240,7 +240,10 @@ export default function OrderTrackingPage(): JSX.Element {
         <div className="mb-6">
           <Button
             variant="outline"
-            onClick={() => navigate('/customer/order')}
+            onClick={() => {
+              const lastTableId = localStorage.getItem('lastTableId')
+              navigate(lastTableId ? `/customer/order?table=${lastTableId}` : '/customer/order')
+            }}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

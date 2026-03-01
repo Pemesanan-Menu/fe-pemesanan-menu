@@ -85,6 +85,7 @@ export interface CreateOrderRequest {
 
 export interface TrackingResponse {
   order_id: string
+  table_id?: string
   status: OrderStatus
   estimated_minutes?: number
   remaining_minutes?: number
