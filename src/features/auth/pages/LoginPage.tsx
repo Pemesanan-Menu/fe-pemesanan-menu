@@ -56,7 +56,15 @@ export default function LoginPage(): JSX.Element {
         description: `Selamat datang, ${response.data.user.name}`
       })
       
-      navigate('/dashboard')
+      // Redirect based on role
+      const { role } = response.data.user
+      if (role === 'production') {
+        navigate('/production')
+      } else if (role === 'cashier') {
+        navigate('/cashier')
+      } else {
+        navigate('/dashboard')
+      }
     } catch (err) {
       toast.error('Login gagal', {
         description: getErrorMessage(err)
